@@ -27,16 +27,11 @@ export class Main {
   }
 
   render(env) {
-    return createElement('p:set-program', {
-      program: this.program,
-      children: [
-        createElement('p:set-buffer-data', {
-          attribute: this.bufferAttribute,
-          data: this.data,
-          drawKind: WebGLRenderingContext.TRIANGLES,
-          bufferKind: WebGLRenderingContext.STATIC_DRAW,
-        }),
-      ],
+    return createElement('p:set-buffer-data', {
+      attribute: this.bufferAttribute,
+      data: this.data,
+      drawKind: WebGLRenderingContext.TRIANGLES,
+      bufferKind: WebGLRenderingContext.STATIC_DRAW,
     });
   }
 }

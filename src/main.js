@@ -25,5 +25,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);
 
-  renderRoot([createElement('component', new Main(program))], context);
+  renderRoot([
+    createElement('p:set-program', {
+      program,
+      children: [
+        createElement('component', new Main(program)),
+      ],
+    }),
+  ], context);
 });
