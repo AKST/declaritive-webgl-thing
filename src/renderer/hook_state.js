@@ -11,5 +11,6 @@ export class HookState {
   }
 
   useMemo(createValue, dependencies) {
+    return createValue();
   }
 }

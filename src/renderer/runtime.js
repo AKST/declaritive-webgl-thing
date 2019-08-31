@@ -11,13 +11,22 @@ class Render {
 
   renderPrimative(primative, parentProgramContext) {
     switch (primative.type) {
-      case 'set-program':
+      case 'fragment': {
+        const childFibers = primative.children.map(uiNode => (
+            this.renderUiNode(uiNode, parentProgramContext)
+        ));
+        return new PrimativeFiber(parentProgramContext, primative, childFibers);
+      }
+
+      case 'set-program': {
         this.context.useProgram(primative.program);
         const programContext = this.programContextFactory(primative.program);
         const childFibers = primative.children.map(uiNode => this.renderUiNode(uiNode, programContext));
         return new PrimativeFiber(programContext, primative, childFibers);
+        this.context.useProgram(primative.program);
+      }
 
-      case 'set-attribute-data':
+      case 'set-attribute-data': {
         const buffer = this.context.createBuffer();
         this.context.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
         this.context.bufferData(WebGLRenderingContext.ARRAY_BUFFER, primative.data, primative.bufferKind);
@@ -26,7 +35,8 @@ class Render {
         this.context.vertexAttribPointer(location, size, WebGLRenderingContext.FLOAT, false, 0, 0);
         this.context.enableVertexAttribArray(location);
         this.context.drawArrays(primative.drawKind, 0, primative.data.length / size);
-        return new PrimativeFiber(programContext, primative, undefined);
+        return new PrimativeFiber(parentProgramContext, primative, undefined);
+      }
 
       default:
         throw new Error(`unsuppported primative: ${primative.type}`);

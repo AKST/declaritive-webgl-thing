@@ -25,6 +25,10 @@ export const UiNode = {
 };
 
 export const Primative = {
+  fragment(children) {
+    return { type: 'fragment', children };
+  },
+
   setAttributeData(attribute, bufferKind, data, drawKind) {
     return { type: 'set-attribute-data', attribute, bufferKind, data, drawKind };
   },
@@ -53,8 +57,11 @@ export const Primative = {
       case 'set-uniform':
         return Primative.setUniform(props.key, props.value, props.children);
 
+      case 'fragment':
+        return Primative.fragment(props);
+
       default:
-        throw new Error('unknown primative');
+        throw new Error(`unknown primative, ${kind}`);
     }
   },
 };

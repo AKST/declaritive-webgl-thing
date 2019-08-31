@@ -1,4 +1,4 @@
-import { createMain } from '/src/ui/main.js';
+import { Main } from '/src/ui/main.js';
 import { renderRoot } from '/src/renderer/runtime.js';
 import { createElement } from '/src/renderer/core.js';
 import { createProgram } from '/src/util/webgl/create.js';
@@ -24,13 +24,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);
-  const Main = createMain();
 
   renderRoot([
     createElement('p:set-program', {
       program,
       children: [
-        createElement('component', Main, { attribute: 'position' }),
+        createElement('component', Main, { attributeName: 'position' }),
       ],
     }),
   ], context);
