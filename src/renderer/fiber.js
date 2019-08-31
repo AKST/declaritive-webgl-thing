@@ -7,17 +7,21 @@ export class PrimativeFiber {
 }
 
 export class ComponentSchedule {
-  constructor(repaint) {
+  constructor(updateFiber) {
     this.componentFiber = undefined;
-    this.repaint = repaint;
+    this._updateFiber = updateFiber;
   }
 
   setFiber(componentFiber) {
     this.componentFiber = componentFiber;
   }
 
-  scheduleRender() {
-    this.repaint();
+  updateFiber() {
+    if (this.componentFiber) {
+      this._updateFiber(this.componentFiber);
+    } else {
+      throw new Error('tried updating fiber before it existed');
+    }
   }
 }
 

@@ -14,7 +14,8 @@ class Render {
     this._hookStateFactory = hookStateFactory;
 
     // Bound methods because class members aren't supported by parcel turns out.
-    this._repaint = this._repaint.bind(this);
+    this._paint = this._paint.bind(this);
+    this._updateComponent = this._updateComponent.bind(this);
   }
 
   renderPrimative(primative, parentProgramContext) {
@@ -68,11 +69,13 @@ class Render {
         return this.renderPrimative(uiNode.primative, programContext);
 
       case 'component':
-        const componentSchedule = new ComponentSchedule(this._repaint);
-        const hookState = this._hookStateFactory(programContext, componentSchedule);
+        const componentSchedule = new ComponentSchedule(this._updateComponent);
+        const hookState = this._hookStateFactory(programContext, () => componentSchedule.updateFiber());
         const uiNodeOutput = uiNode.component(uiNode.props, hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
-        return new ComponentFiber(hookState, uiNode.component, uiNode.props, childFiber);
+        const componentFiber = new ComponentFiber(hookState, uiNode.component, uiNode.props, childFiber);
+        componentSchedule.setFiber(componentFiber);
+        return componentFiber;
 
       default:
         throw new Error(`unsuppported ui node: ${uiNode.type}`);
@@ -84,7 +87,11 @@ class Render {
     return this._rootFibers;
   }
 
-  _repaint() {
+  _updateComponent(componentFiber) {
+    console.log('updating', componentFiber);
+  }
+
+  _paint() {
   }
 }
 

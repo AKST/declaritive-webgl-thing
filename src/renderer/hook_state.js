@@ -24,15 +24,15 @@ class MemoValue {
 }
 
 class StateNode {
-  constructor(initialValue, queueRender) {
+  constructor(initialValue, updateFiber) {
     this.value = initialValue;
-    this.queueRender = queueRender;
+    this.updateFiber = updateFiber;
     this.setValue = this.setValue.bind(this);
   }
 
   setValue(value) {
     this.value = value;
-    this.queueRender();
+    this.updateFiber();
   }
 }
 
@@ -63,7 +63,7 @@ class EffectNode {
 export class HookState {
   constructor(
       programContext,
-      componentSchedule,
+      updateFiber,
       effectNodeFactory,
       layoutEffectNodeFactory,
   ) {
@@ -71,7 +71,7 @@ export class HookState {
     this._initialRender = true;
     this._hooks = [];
     this._hookPosition = 0;
-    this._componentSchedule = componentSchedule;
+    this._updateFiber = updateFiber;
     this._effectNodeFactory = effectNodeFactory;
     this._layoutEffectNodeFactory = layoutEffectNodeFactory;
   }
@@ -119,8 +119,7 @@ export class HookState {
 
   useState(value) {
     if (this._initialRender) {
-      const scheduleRender = () => this._componentSchedule.scheduleRender();
-      const stateNode = new StateNode(value, scheduleRender);
+      const stateNode = new StateNode(value, this._updateFiber);
 
       this._hooks.push(stateNode);
       return [stateNode.value, stateNode.setValue];

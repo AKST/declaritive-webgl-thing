@@ -1,7 +1,8 @@
-import { Main } from '/src/ui/main.js';
 import { renderRoot } from '/src/renderer/runtime.js';
 import { createElement } from '/src/renderer/core.js';
 import { createProgram } from '/src/util/webgl/create.js';
+
+import { Main } from '/src/ui/main.js';
 
 const fragmentSource = `
   void main() {
@@ -20,45 +21,22 @@ const vertexSource = `
 `;
 
 document.addEventListener('DOMContentLoaded', function () {
-  const { width, height } = document.getElementById('bounds').getBoundingClientRect();
+  const canvaBounds = document.getElementById('bounds').getBoundingClientRect();
   const canva = document.getElementById('canvas');
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = canvaBounds.width;
+  canvas.height = canvaBounds.height;
 
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);
-
-  function Translate({ x, y, children }, env) {
-    const [xOffset, setXOffset] = env.useState(0);
-    const [yOffset, setYOffset] = env.useState(0);
-
-    env.useEffect(() => {
-      const interval = setInterval(() => {
-        setXOffset((Math.random() - 0.5) * 0.1);
-        setYOffset((Math.random() - 0.5) * 0.1);
-      }, 50);
-    }, []);
-
-    return createElement('p:set-uniform', {
-      uniform: env.useUniform('u_translate', '2f'),
-      value: [x, y],
-      children,
-    });
-  }
 
   renderRoot([
     createElement('p:set-program', {
       program,
       children: [
-        createElement('component', Translate, {
-          x: 0,
-          y: -0.25,
-          children: [
-            createElement('component', Main, {
-              attributeName: 'a_position',
-            }),
-          ],
-        }),
+        createElement('component', Main, {
+          positionAttributeName: 'a_position',
+          translateUniformName: 'u_translate',
+        })
       ],
     }),
   ], context, function (fiber) {
