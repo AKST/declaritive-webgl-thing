@@ -26,10 +26,15 @@ export class ComponentSchedule {
 }
 
 export class ComponentFiber {
-  constructor(hookState, component, props, childFiber) {
+  constructor(programContext, hookState, component, props, childFiber) {
+    this.programContext = programContext;
     this.hookState = hookState;
     this.component = component;
     this.props = props;
+    this.childFiber = childFiber;
+  }
+
+  setChildFiber(childFiber) {
     this.childFiber = childFiber;
   }
 

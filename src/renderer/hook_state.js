@@ -32,7 +32,11 @@ class StateNode {
 
   setValue(value) {
     this.value = value;
-    this.updateFiber();
+    try {
+      this.updateFiber();
+    } catch (e) {
+      console.error('set value failed');
+    }
   }
 }
 
