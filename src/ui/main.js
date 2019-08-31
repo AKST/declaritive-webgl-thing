@@ -12,19 +12,17 @@ function squarePoints(x, y, w, h) {
   ];
 }
 
-export class Main {
-  constructor() {
-    this.data = new Float32Array(squarePoints(-0.5, -0.5, 1, 1));
-  }
+export function createMain() {
+  const data = new Float32Array(squarePoints(-0.5, -0.5, 1, 1));
 
-  render(env) {
-    const attribute = env.useAttribute('position', 2);
+  return (props, env) => {
+    const attribute = env.useAttribute(props.attribute, 2);
 
     return createElement('p:set-attribute-data', {
       attribute,
-      data: this.data,
+      data,
       drawKind: WebGLRenderingContext.TRIANGLES,
       bufferKind: WebGLRenderingContext.STATIC_DRAW,
     });
-  }
+  };
 }

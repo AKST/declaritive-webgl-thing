@@ -7,9 +7,10 @@ export class PrimativeFiber {
 }
 
 export class ComponentFiber {
-  constructor(hookState, component, childFiber) {
+  constructor(hookState, component, props, childFiber) {
     this.hookState = hookState;
     this.component = component;
+    this.props = props;
     this.childFiber = childFiber;
   }
 

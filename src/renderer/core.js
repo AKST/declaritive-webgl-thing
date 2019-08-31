@@ -1,12 +1,12 @@
-export const createElement = (kind, props) => {
+export const createElement = (kind, ...props) => {
   const [prefix, subKind] = kind.split(':');
 
   switch (prefix) {
     case 'p':
-      return UiNode.primative(Primative.createPrimative(subKind, props));
+      return UiNode.primative(Primative.createPrimative(subKind, ...props));
 
     case 'component':
-      return UiNode.component(props);
+      return UiNode.component(...props);
 
     default:
       throw new Error(`element kind not supported, ${kind}`);
@@ -15,8 +15,8 @@ export const createElement = (kind, props) => {
 
 
 export const UiNode = {
-  component(component) {
-    return { type: 'component', component };
+  component(component, props) {
+    return { type: 'component', component, props };
   },
 
   primative(primative) {

@@ -7,8 +7,9 @@ export class HookState {
 
   useAttribute(name, size) {
     let location = this.programContext.getAttributeLocation(name);
-    console.log(this.programContext);
-    console.log(name, size, location);
-    return { location, size };
+    return ({ location, size });
+  }
+
+  useMemo(createValue, dependencies) {
   }
 }

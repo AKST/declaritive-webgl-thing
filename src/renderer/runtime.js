@@ -40,9 +40,9 @@ class Render {
 
       case 'component':
         const hookState = new HookState(programContext);
-        const uiNodeOutput = uiNode.component.render(hookState);
+        const uiNodeOutput = uiNode.component(uiNode.props, hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
-        return new ComponentFiber(hookState, uiNode.component, childFiber);
+        return new ComponentFiber(hookState, uiNode.component, uiNode.props, childFiber);
 
       default:
         throw new Error(`unsuppported ui node: ${uiNode.type}`);
