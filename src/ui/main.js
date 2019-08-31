@@ -13,25 +13,15 @@ function squarePoints(x, y, w, h) {
 }
 
 const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
+  const data = env.useMemo(() => (
+      new Float32Array(squarePoints(xOffset, yOffset, size, size))
+  ), [xOffset, yOffset, size]);
+
+  const buffer = env.useBuffer(data, WebGLRenderingContext.STATIC_DRAW);
+  const drawKind = WebGLRenderingContext.TRIANGLES;
   const attribute = env.useAttribute(attributeName, 2);
 
-  const data = env.useMemo(() => {
-    return new Float32Array(
-        squarePoints(
-            xOffset,
-            yOffset,
-            size,
-            size,
-        ),
-    );
-  }, [xOffset, yOffset, size]);
-
-  return createElement('p:set-attribute-data', {
-    attribute,
-    data,
-    drawKind: WebGLRenderingContext.TRIANGLES,
-    bufferKind: WebGLRenderingContext.STATIC_DRAW,
-  });
+  return createElement('p:set-attribute-data', { attribute, buffer, drawKind });
 };
 
 export function Main({ attributeName }, env) {

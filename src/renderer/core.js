@@ -29,8 +29,8 @@ export const Primative = {
     return { type: 'fragment', children };
   },
 
-  setAttributeData(attribute, bufferKind, data, drawKind) {
-    return { type: 'set-attribute-data', attribute, bufferKind, data, drawKind };
+  setAttributeData(attribute, buffer, drawKind) {
+    return { type: 'set-attribute-data', attribute, buffer, drawKind };
   },
 
   setUniform(key, value, children) {
@@ -46,8 +46,7 @@ export const Primative = {
       case 'set-attribute-data':
         return Primative.setAttributeData(
             props.attribute,
-            props.bufferKind,
-            props.data,
+            props.buffer,
             props.drawKind,
         );
 

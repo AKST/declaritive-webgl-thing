@@ -8,11 +8,13 @@ import { createHookStateFactory } from '/src/renderer/hook_state.js';
 
 class Render {
   constructor(context, programContextFactory, hookStateFactory) {
-    this.context = context;
-    this.rootElement = undefined;
-    this.programContextFactory = programContextFactory;
-    this.repaint = this.repaint.bind(this);
+    this._context = context;
+    this._rootFibers = undefined;
+    this._programContextFactory = programContextFactory;
     this._hookStateFactory = hookStateFactory;
+
+    // Bound methods because class members aren't supported by parcel turns out.
+    this._repaint = this._repaint.bind(this);
   }
 
   renderPrimative(primative, parentProgramContext) {
@@ -25,22 +27,21 @@ class Render {
       }
 
       case 'set-program': {
-        this.context.useProgram(primative.program);
-        const programContext = this.programContextFactory(primative.program);
+        this._context.useProgram(primative.program);
+        const programContext = this._programContextFactory(primative.program);
         const childFibers = primative.children.map(uiNode => this.renderUiNode(uiNode, programContext));
         return new PrimativeFiber(programContext, primative, childFibers);
-        this.context.useProgram(primative.program);
+        this._context.useProgram(primative.program);
       }
 
       case 'set-attribute-data': {
-        const buffer = this.context.createBuffer();
-        this.context.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
-        this.context.bufferData(WebGLRenderingContext.ARRAY_BUFFER, primative.data, primative.bufferKind);
-
         const { location, size } = primative.attribute;
-        this.context.vertexAttribPointer(location, size, WebGLRenderingContext.FLOAT, false, 0, 0);
-        this.context.enableVertexAttribArray(location);
-        this.context.drawArrays(primative.drawKind, 0, primative.data.length / size);
+        const buffer = primative.buffer;
+        this._context.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer.buffer);
+        this._context.bufferData(WebGLRenderingContext.ARRAY_BUFFER, buffer.data, buffer.kind);
+        this._context.vertexAttribPointer(location, size, WebGLRenderingContext.FLOAT, false, 0, 0);
+        this._context.enableVertexAttribArray(location);
+        this._context.drawArrays(primative.drawKind, 0, buffer.data.length / size);
         return new PrimativeFiber(parentProgramContext, primative, undefined);
       }
 
@@ -55,7 +56,7 @@ class Render {
         return this.renderPrimative(uiNode.primative, programContext);
 
       case 'component':
-        const componentSchedule = new ComponentSchedule(this.repaint);
+        const componentSchedule = new ComponentSchedule(this._repaint);
         const hookState = this._hookStateFactory(programContext, componentSchedule);
         const uiNodeOutput = uiNode.component(uiNode.props, hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
@@ -66,12 +67,12 @@ class Render {
     }
   }
 
-  repaint() {
-    console.log('repaint');
+  renderRoot(uiNodes) {
+    this._rootFibers = uiNodes.map(uiNode => this.renderUiNode(uiNode, undefined));
   }
 
-  renderRoot(uiNodes) {
-    this.rootFibers = uiNodes.map(uiNode => this.renderUiNode(uiNode, undefined));
+  _repaint() {
+    console.log('repaint');
   }
 }
 

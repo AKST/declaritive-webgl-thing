@@ -5,6 +5,10 @@ export class ProgramContext {
     this.memoAttributeLocation = new Map();
   }
 
+  createBuffer() {
+    return this.context.createBuffer();
+  }
+
   getAttributeLocation(name) {
     const location = this.memoAttributeLocation.get(name);
 

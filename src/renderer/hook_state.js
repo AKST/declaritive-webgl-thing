@@ -65,6 +65,7 @@ export class HookState {
       programContext,
       componentSchedule,
       effectNodeFactory,
+      layoutEffectNodeFactory,
   ) {
     this._programContext = programContext;
     this._initialRender = true;
@@ -72,6 +73,7 @@ export class HookState {
     this._hookPosition = 0;
     this._componentSchedule = componentSchedule;
     this._effectNodeFactory = effectNodeFactory;
+    this._layoutEffectNodeFactory = layoutEffectNodeFactory;
   }
 
   useAttribute(name, size) {
@@ -81,9 +83,26 @@ export class HookState {
     }, [name, size]);
   }
 
+  useBuffer(data, kind) {
+    return this.useMemo(() => {
+      const buffer = this._programContext.createBuffer()
+      return { buffer, kind, data };
+    }, [data, kind]);
+  }
+
   useEffect(runEffect, dependencies) {
     if (this._initialRender) {
       const effectNode = this._effectNodeFactory(runEffect, dependencies);
+      this._hooks.push(effectNode);
+    } else {
+      const effectNode = this._getNextHook();
+      effectNode.syncEffect(runEffect, dependencies);
+    }
+  }
+
+  useLayoutEffect(runEffect, dependencies) {
+    if (this._initialRender) {
+      const effectNode = this._layoutEffectNodeFactory(runEffect, dependencies);
       this._hooks.push(effectNode);
     } else {
       const effectNode = this._getNextHook();
@@ -126,15 +145,30 @@ export class HookState {
 }
 
 export function createHookStateFactory(
-  requestIdelCallback,
+  requestIdleCallback,
 ) {
+  const runImmediately = (callback) => {
+    try {
+      callback()
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (programContext, componentSchedule) => (
       new HookState(
           programContext,
           componentSchedule,
           (runEffect, dependencies) => (
               EffectNode.create(
-                  requestIdelCallback,
+                  requestIdleCallback,
+                  runEffect,
+                  dependencies,
+              )
+          ),
+          (runEffect, dependencies) => (
+              EffectNode.create(
+                  runImmediately,
                   runEffect,
                   dependencies,
               )
