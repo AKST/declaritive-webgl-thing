@@ -13,8 +13,7 @@ function squarePoints(x, y, w, h) {
 }
 
 export class Main {
-  constructor(program) {
-    this.program = program;
+  constructor() {
     this.data = new Float32Array(squarePoints(-0.5, -0.5, 1, 1));
   }
 
@@ -22,12 +21,11 @@ export class Main {
     return {
       name: 'position',
       size: 2,
-      program: this.program,
     };
   }
 
   render(env) {
-    return createElement('p:set-buffer-data', {
+    return createElement('p:set-attribute-data', {
       attribute: this.bufferAttribute,
       data: this.data,
       drawKind: WebGLRenderingContext.TRIANGLES,

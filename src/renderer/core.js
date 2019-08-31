@@ -25,8 +25,8 @@ export const UiNode = {
 };
 
 export const Primative = {
-  setBufferData(attribute, bufferKind, data, drawKind) {
-    return { type: 'set-buffer-data', attribute, bufferKind, data, drawKind };
+  setAttributeData(attribute, bufferKind, data, drawKind) {
+    return { type: 'set-attribute-data', attribute, bufferKind, data, drawKind };
   },
 
   setUniform(key, value, children) {
@@ -39,8 +39,8 @@ export const Primative = {
 
   createPrimative(kind, props) {
     switch (kind) {
-      case 'set-buffer-data':
-        return Primative.setBufferData(
+      case 'set-attribute-data':
+        return Primative.setAttributeData(
             props.attribute,
             props.bufferKind,
             props.data,

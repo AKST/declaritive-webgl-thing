@@ -28,9 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
   renderRoot([
     createElement('p:set-program', {
       program,
-      children: [
-        createElement('component', new Main(program)),
-      ],
+      children: [createElement('component', new Main())],
     }),
   ], context);
 });
