@@ -17,16 +17,11 @@ export class Main {
     this.data = new Float32Array(squarePoints(-0.5, -0.5, 1, 1));
   }
 
-  get bufferAttribute() {
-    return {
-      name: 'position',
-      size: 2,
-    };
-  }
-
   render(env) {
+    const attribute = env.useAttribute('position', 2);
+
     return createElement('p:set-attribute-data', {
-      attribute: this.bufferAttribute,
+      attribute,
       data: this.data,
       drawKind: WebGLRenderingContext.TRIANGLES,
       bufferKind: WebGLRenderingContext.STATIC_DRAW,

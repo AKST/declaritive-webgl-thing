@@ -1,8 +1,6 @@
-import {
-  PrimativeFiber,
-  ProgramContext,
-  ComponentFiber,
-} from '/src/renderer/fiber.js';
+import { PrimativeFiber, ComponentFiber } from '/src/renderer/fiber.js';
+import { ProgramContext } from '/src/renderer/program_context.js';
+import { HookState } from '/src/renderer/hook_state.js';
 
 class Render {
   constructor(context, programContextFactory) {
@@ -24,10 +22,9 @@ class Render {
         this.context.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
         this.context.bufferData(WebGLRenderingContext.ARRAY_BUFFER, primative.data, primative.bufferKind);
 
-        const { program, name, size } = primative.attribute;
-        const aLoc = this.context.getAttribLocation(parentProgramContext.program, name);
-        this.context.vertexAttribPointer(aLoc, size, WebGLRenderingContext.FLOAT, false, 0, 0);
-        this.context.enableVertexAttribArray(aLoc);
+        const { location, size } = primative.attribute;
+        this.context.vertexAttribPointer(location, size, WebGLRenderingContext.FLOAT, false, 0, 0);
+        this.context.enableVertexAttribArray(location);
         this.context.drawArrays(primative.drawKind, 0, primative.data.length / size);
         return new PrimativeFiber(programContext, primative, undefined);
 
@@ -42,9 +39,10 @@ class Render {
         return this.renderPrimative(uiNode.primative, programContext);
 
       case 'component':
-        const uiNodeOutput = uiNode.component.render(undefined);
+        const hookState = new HookState(programContext);
+        const uiNodeOutput = uiNode.component.render(hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
-        return new ComponentFiber(programContext, uiNode.component, childFiber);
+        return new ComponentFiber(hookState, uiNode.component, childFiber);
 
       default:
         throw new Error(`unsuppported ui node: ${uiNode.type}`);
