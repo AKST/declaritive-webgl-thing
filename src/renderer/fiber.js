@@ -6,6 +6,22 @@ export class PrimativeFiber {
   }
 }
 
+export class ComponentSchedule {
+  constructor(repaint) {
+    this.componentFiber = undefined;
+    this.repaint = repaint;
+  }
+
+  setFiber(componentFiber) {
+    this.componentFiber = componentFiber;
+  }
+
+  scheduleRender() {
+    console.log('render');
+    repaint();
+  }
+}
+
 export class ComponentFiber {
   constructor(hookState, component, props, childFiber) {
     this.hookState = hookState;

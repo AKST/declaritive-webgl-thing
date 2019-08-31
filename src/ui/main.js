@@ -35,6 +35,10 @@ const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
 };
 
 export function Main({ attributeName }, env) {
+  env.useEffect(() => {
+    console.log('effect!');
+  }, []);
+
   return createElement('p:fragment', [
     createElement('component', Square, {
       attributeName,

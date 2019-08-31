@@ -1,12 +1,18 @@
-import { PrimativeFiber, ComponentFiber } from '/src/renderer/fiber.js';
+import {
+  PrimativeFiber,
+  ComponentFiber,
+  ComponentSchedule,
+} from '/src/renderer/fiber.js';
 import { ProgramContext } from '/src/renderer/program_context.js';
-import { HookState } from '/src/renderer/hook_state.js';
+import { createHookStateFactory } from '/src/renderer/hook_state.js';
 
 class Render {
-  constructor(context, programContextFactory) {
+  constructor(context, programContextFactory, hookStateFactory) {
     this.context = context;
     this.rootElement = undefined;
     this.programContextFactory = programContextFactory;
+    this.repaint = this.repaint.bind(this);
+    this._hookStateFactory = hookStateFactory;
   }
 
   renderPrimative(primative, parentProgramContext) {
@@ -49,7 +55,8 @@ class Render {
         return this.renderPrimative(uiNode.primative, programContext);
 
       case 'component':
-        const hookState = new HookState(programContext);
+        const componentSchedule = new ComponentSchedule(this.repaint);
+        const hookState = this._hookStateFactory(programContext, componentSchedule);
         const uiNodeOutput = uiNode.component(uiNode.props, hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
         return new ComponentFiber(hookState, uiNode.component, uiNode.props, childFiber);
@@ -59,6 +66,10 @@ class Render {
     }
   }
 
+  repaint() {
+    console.log('repaint');
+  }
+
   renderRoot(uiNodes) {
     this.rootFibers = uiNodes.map(uiNode => this.renderUiNode(uiNode, undefined));
   }
@@ -66,6 +77,11 @@ class Render {
 
 export function renderRoot(patch, context) {
   const programContextFactory = (program) => new ProgramContext(context, program);
-  const renderer = new Render(context, programContextFactory);
+  const requestIdleCallback = window.requestIdleCallback || setTimeout;
+  const renderer = new Render(
+      context,
+      programContextFactory,
+      createHookStateFactory(requestIdleCallback),
+  );
   renderer.renderRoot(patch);
 }
