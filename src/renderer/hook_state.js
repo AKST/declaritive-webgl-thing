@@ -76,11 +76,18 @@ export class HookState {
     this._layoutEffectNodeFactory = layoutEffectNodeFactory;
   }
 
-  useAttribute(name, size) {
+  useAttribute(name, size, program) {
     return this.useMemo(() => {
       const location = this._programContext.getAttributeLocation(name);
-      return ({ location, size })
+      return { location, size };
     }, [name, size]);
+  }
+
+  useUniform(name, type) {
+    return this.useMemo(() => {
+      const location = this._programContext.getUniformLocation(name);
+      return { location, type };
+    }, [name, type]);
   }
 
   useBuffer(data, kind) {

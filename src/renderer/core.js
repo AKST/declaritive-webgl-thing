@@ -33,8 +33,8 @@ export const Primative = {
     return { type: 'set-attribute-data', attribute, buffer, drawKind };
   },
 
-  setUniform(key, value, children) {
-    return { type: 'set-uniform', key, value, children };
+  setUniform(uniform, value, children) {
+    return { type: 'set-uniform', uniform, value, children };
   },
 
   setProgram(program, children) {
@@ -54,7 +54,7 @@ export const Primative = {
         return Primative.setProgram(props.program, props.children);
 
       case 'set-uniform':
-        return Primative.setUniform(props.key, props.value, props.children);
+        return Primative.setUniform(props.uniform, props.value, props.children);
 
       case 'fragment':
         return Primative.fragment(props);

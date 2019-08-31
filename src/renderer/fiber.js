@@ -17,8 +17,7 @@ export class ComponentSchedule {
   }
 
   scheduleRender() {
-    console.log('render');
-    repaint();
+    this.repaint();
   }
 }
 

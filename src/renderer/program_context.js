@@ -3,10 +3,23 @@ export class ProgramContext {
     this.context = context;
     this.program = program;
     this.memoAttributeLocation = new Map();
+    this.memoUniformLocation = new Map();
   }
 
   createBuffer() {
     return this.context.createBuffer();
+  }
+
+  getUniformLocation(name) {
+    const location = this.memoUniformLocation.get(name);
+
+    if (!location) {
+      const location = this.context.getUniformLocation(this.program, name);
+      this.memoUniformLocation.set(name, location);
+      return location;
+    }
+
+    return location;
   }
 
   getAttributeLocation(name) {

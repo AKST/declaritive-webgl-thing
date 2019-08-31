@@ -31,12 +31,24 @@ class Render {
         const programContext = this._programContextFactory(primative.program);
         const childFibers = primative.children.map(uiNode => this.renderUiNode(uiNode, programContext));
         return new PrimativeFiber(programContext, primative, childFibers);
-        this._context.useProgram(primative.program);
+      }
+
+      case 'set-uniform': {
+        const { uniform: { location, type }, value } = primative;
+        const contextMethodName = 'uniform' + type;
+        if (this._context[contextMethodName]) {
+          this._context[contextMethodName](location, ...value);
+          const childFibers = primative.children.map(uiNode => (
+              this.renderUiNode(uiNode, parentProgramContext)
+          ));
+          return new PrimativeFiber(parentProgramContext, primative, childFibers);
+        } else {
+          throw new Error(`unknown unform type, ${type}`);
+        }
       }
 
       case 'set-attribute-data': {
-        const { location, size } = primative.attribute;
-        const buffer = primative.buffer;
+        const { attribute: { location, size }, buffer } = primative;
         this._context.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer.buffer);
         this._context.bufferData(WebGLRenderingContext.ARRAY_BUFFER, buffer.data, buffer.kind);
         this._context.vertexAttribPointer(location, size, WebGLRenderingContext.FLOAT, false, 0, 0);
@@ -69,14 +81,14 @@ class Render {
 
   renderRoot(uiNodes) {
     this._rootFibers = uiNodes.map(uiNode => this.renderUiNode(uiNode, undefined));
+    return this._rootFibers;
   }
 
   _repaint() {
-    console.log('repaint');
   }
 }
 
-export function renderRoot(patch, context) {
+export function renderRoot(patch, context, onComplete) {
   const programContextFactory = (program) => new ProgramContext(context, program);
   const requestIdleCallback = window.requestIdleCallback || setTimeout;
   const renderer = new Render(
@@ -84,5 +96,5 @@ export function renderRoot(patch, context) {
       programContextFactory,
       createHookStateFactory(requestIdleCallback),
   );
-  renderer.renderRoot(patch);
+  onComplete(renderer.renderRoot(patch));
 }

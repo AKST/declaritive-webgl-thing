@@ -10,10 +10,12 @@ const fragmentSource = `
 `;
 
 const vertexSource = `
-  attribute vec2 position;
+  attribute vec2 a_position;
+
+  uniform vec2 u_translate;
 
   void main() {
-    gl_Position = vec4(position, 0.0, 1.0);
+    gl_Position = vec4(a_position + u_translate, 0.0, 1.0);
   }
 `;
 
@@ -26,12 +28,40 @@ document.addEventListener('DOMContentLoaded', function () {
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);
 
+  function Translate({ x, y, children }, env) {
+    const [xOffset, setXOffset] = env.useState(0);
+    const [yOffset, setYOffset] = env.useState(0);
+
+    env.useEffect(() => {
+      const interval = setInterval(() => {
+        setXOffset((Math.random() - 0.5) * 0.1);
+        setYOffset((Math.random() - 0.5) * 0.1);
+      }, 50);
+    }, []);
+
+    return createElement('p:set-uniform', {
+      uniform: env.useUniform('u_translate', '2f'),
+      value: [x, y],
+      children,
+    });
+  }
+
   renderRoot([
     createElement('p:set-program', {
       program,
       children: [
-        createElement('component', Main, { attributeName: 'position' }),
+        createElement('component', Translate, {
+          x: 0,
+          y: -0.25,
+          children: [
+            createElement('component', Main, {
+              attributeName: 'a_position',
+            }),
+          ],
+        }),
       ],
     }),
-  ], context);
+  ], context, function (fiber) {
+    console.log(fiber);
+  });
 });
