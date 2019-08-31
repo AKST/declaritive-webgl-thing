@@ -24,7 +24,7 @@ const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
             size,
         ),
     );
-  }, [size]);
+  }, [xOffset, yOffset, size]);
 
   return createElement('p:set-attribute-data', {
     attribute,

@@ -18,9 +18,10 @@ const vertexSource = `
 `;
 
 document.addEventListener('DOMContentLoaded', function () {
+  const { width, height } = document.getElementById('bounds').getBoundingClientRect();
   const canva = document.getElementById('canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
 
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);
