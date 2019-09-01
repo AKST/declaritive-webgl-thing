@@ -1,4 +1,4 @@
-import { createElement } from '/src/renderer/core.js';
+import { createElement } from '/src/renderer/core';
 
 const createOffsetValue = (distance) => (Math.random() - 0.5) * distance;
 
@@ -6,14 +6,15 @@ export function JitterTranslate({ uniformName, x = 0, y = 0, d, children }, env)
   const [xOffset, setXOffset] = env.useState(createOffsetValue(d));
   const [yOffset, setYOffset] = env.useState(createOffsetValue(d));
 
-  env.useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('updating jitter!');
-      // setXOffset(createOffsetValue(d));
-      // setYOffset(createOffsetValue(d));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // env.useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     console.log('updating jitter!');
+  //     setXOffset(createOffsetValue(d));
+  //     setYOffset(createOffsetValue(d));
+  //   }, 1000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return createElement('component', Translate, {
     uniformName,

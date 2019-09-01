@@ -35,7 +35,7 @@ class StateNode {
     try {
       this.updateFiber();
     } catch (e) {
-      console.error('set value failed');
+      console.error('set value failed', e);
     }
   }
 }
@@ -129,6 +129,7 @@ export class HookState {
       return [stateNode.value, stateNode.setValue];
     } else {
       const stateNode = this._getNextHook();
+      console.log(stateNode, this._hookPosition);
       return [stateNode.value, stateNode.setValue];
     }
   }
@@ -146,6 +147,7 @@ export class HookState {
   }
 
   onRenderFinish() {
+    this._initialRender = false;
     this.hookPosition = 0;
   }
 

@@ -2,16 +2,23 @@ import {
   PrimativeFiber,
   ComponentFiber,
   ComponentSchedule,
-} from '/src/renderer/fiber.js';
-import { ProgramContext } from '/src/renderer/program_context.js';
+  createComponentScheduleFactory,
+} from '/src/renderer/fiber';
+import { ProgramContext } from '/src/renderer/program_context';
 import { createHookStateFactory } from '/src/renderer/hook_state.js';
 
 class Render {
-  constructor(context, programContextFactory, hookStateFactory) {
+  constructor(
+      context,
+      programContextFactory,
+      hookStateFactory,
+      componentScheduleFactory
+  ) {
     this._context = context;
     this._rootFibers = undefined;
     this._programContextFactory = programContextFactory;
     this._hookStateFactory = hookStateFactory;
+    this._componentScheduleFactory = componentScheduleFactory;
 
     // Bound methods because class members aren't supported by parcel turns out.
     // - _paint is bound because it's passed to requestAnimationFrame
@@ -45,9 +52,9 @@ class Render {
       case 'primative':
         return this.renderPrimative(uiNode.primative, programContext);
 
-      case 'component':
-        const componentSchedule = new ComponentSchedule(this._updateComponent);
-        const hookState = this._hookStateFactory(programContext, () => componentSchedule.updateFiber());
+      case 'component': {
+        const componentSchedule = this._componentScheduleFactory(this._updateComponent);
+        const hookState = this._hookStateFactory(programContext, componentSchedule.updateFiber);
         const uiNodeOutput = uiNode.component(uiNode.props, hookState);
         const childFiber = this.renderUiNode(uiNodeOutput, programContext);
         const componentFiber = new ComponentFiber(
@@ -60,6 +67,7 @@ class Render {
         hookState.onRenderFinish();
         componentSchedule.setFiber(componentFiber);
         return componentFiber;
+      }
 
       default:
         throw new Error(`unsuppported ui node: ${uiNode.type}`);
@@ -75,8 +83,38 @@ class Render {
   _updateComponent(componentFiber) {
     const { component, props, hookState, programContext } = componentFiber;
     const uiNodeOutput = component(props, hookState);
-    const childFiber = this.renderUiNode(uiNodeOutput, programContext);
-    componentFiber.setChildFiber(childFiber);
+    hookState.onRenderFinish();
+
+    // TODO: children update
+    //const childFiber = this.renderUiNode(uiNodeOutput, programContext);
+    //const shouldUpdateChlidren = this._didFiberUpdate(childFiber, componentFiber.childFiber);
+    //componentFiber.setChildFiber(childFiber);
+    // if (shouldUpdateChlidren) {
+    //   console.warn('child update not implemented');
+    // }
+  }
+
+  _didFiberUpdate(nextFiber, currFiber) {
+    const nextIsComponent = nextFiber instanceof ComponentFiber;
+    const currIsComponent = currFiber instanceof ComponentFiber;
+    const nextIsPrimative = nextFiber instanceof PrimativeFiber;
+    const currIsPrimative = currFiber instanceof PrimativeFiber;
+
+    if (nextIsComponent && currIsComponent) {
+      return this._didComponentUpdate(nextFiber, currFiber);
+    } else if (nextIsPrimative && currIsPrimative) {
+      return this._didPrimativeUpdate(nextFiber, currFiber);
+    } else {
+      return true;
+    }
+  }
+
+  _didComponentUpdate(nextFiber, currFiber) {
+    return currFiber.shouldUpdate(nextFiber);
+  }
+
+  _didPrimativeUpdate(nextFiber, currFiber) {
+    // TODO
   }
 
   _paint() {
@@ -148,11 +186,13 @@ class Render {
 
 export function renderRoot(patch, context, onComplete) {
   const programContextFactory = (program) => new ProgramContext(context, program);
-  const requestIdleCallback = window.requestIdleCallback || setTimeout;
+  const requestIdleCallback = window.requestIdleCallback.bind(window) || window.setTimeout.bind(window);
+  const cancelIdleCallback = window.cancelIdleCallback.bind(window) || window.clearTimeout.bind(window);
   const renderer = new Render(
       context,
       programContextFactory,
       createHookStateFactory(requestIdleCallback),
+      createComponentScheduleFactory(requestIdleCallback, cancelIdleCallback),
   );
 
   onComplete(renderer.renderRoot(patch));

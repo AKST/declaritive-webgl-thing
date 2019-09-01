@@ -29,6 +29,7 @@ export function Main({
   positionAttributeName: attributeName,
   translateUniformName: uniformName,
 }, env) {
+
   env.useEffect(() => {
     console.log('effect!');
   }, []);

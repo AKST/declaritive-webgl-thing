@@ -1,8 +1,8 @@
-import { renderRoot } from '/src/renderer/runtime.js';
-import { createElement } from '/src/renderer/core.js';
-import { createProgram } from '/src/util/webgl/create.js';
+import { renderRoot } from '/src/renderer/runtime';
+import { createElement } from '/src/renderer/core';
+import { createProgram } from '/src/util/webgl/create';
 
-import { Main } from '/src/ui/main.js';
+import { Main } from '/src/ui/main';
 
 const fragmentSource = `
   void main() {

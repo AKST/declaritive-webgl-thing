@@ -1,4 +1,4 @@
-export function createShader(context, shaderSource, type) {
+export function createShader(context: WebGLRenderingContext, shaderSource: string, type: number): WebGLShader {
   const shader = context.createShader(type);
   context.shaderSource(shader, shaderSource);
   context.compileShader(shader);
@@ -9,7 +9,11 @@ export function createShader(context, shaderSource, type) {
   throw new Error(`failed to create shader: ${reason}`);
 }
 
-export function createProgram(context, vertexSource, fragmentSource) {
+export function createProgram(
+    context: WebGLRenderingContext,
+    vertexSource: string,
+    fragmentSource: string,
+): WebGLProgram {
   const program = context.createProgram();
   context.attachShader(program, createShader(context, vertexSource, context.VERTEX_SHADER));
   context.attachShader(program, createShader(context, fragmentSource, context.FRAGMENT_SHADER));
