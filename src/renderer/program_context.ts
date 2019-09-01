@@ -5,16 +5,16 @@ export class ProgramContext {
   memoUniformLocation = new Map();
 
   constructor(
-      private context: WebGlRenderingContext,
-      private program: WebGlProgram,
+      private context: WebGLRenderingContext,
+      private program: WebGLProgram,
   ) {
   }
 
-  createBuffer() {
-    return this.context.createBuffer();
+  createBuffer(): WebGLBuffer | undefined {
+    return this.context.createBuffer() || undefined;
   }
 
-  getUniformLocation(name: string) {
+  getUniformLocation(name: string): WebGLUniformLocation {
     const location = this.memoUniformLocation.get(name);
 
     if (!location) {
