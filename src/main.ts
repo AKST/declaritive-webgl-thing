@@ -1,5 +1,5 @@
 import { renderRoot } from '/src/renderer/runtime';
-import { createElement } from '/src/renderer/core';
+import { createElement } from '/src/renderer/element.ts';
 import { createProgram } from '/src/util/webgl/create';
 
 import { Main } from '/src/ui/main';

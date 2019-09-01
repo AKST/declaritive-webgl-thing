@@ -124,12 +124,10 @@ export class HookState {
   useState(value) {
     if (this._initialRender) {
       const stateNode = new StateNode(value, this._updateFiber);
-
       this._hooks.push(stateNode);
       return [stateNode.value, stateNode.setValue];
     } else {
       const stateNode = this._getNextHook();
-      console.log(stateNode, this._hookPosition);
       return [stateNode.value, stateNode.setValue];
     }
   }

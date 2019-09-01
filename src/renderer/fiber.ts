@@ -39,8 +39,9 @@ export class ComponentSchedule {
     }
   };
 
-  shouldUpdate(nextFiber: ComponentFiber) {
-
+  shouldUpdate(nextFiber: ComponentFiber): boolean {
+    // TODO
+    return false;
   }
 }
 

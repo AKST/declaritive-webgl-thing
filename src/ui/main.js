@@ -1,4 +1,4 @@
-import { createElement } from '/src/renderer/core';
+import { createElement } from '/src/renderer/element.ts';
 import { Translate, JitterTranslate } from '/src/ui/translate';
 
 function squarePoints(x, y, w, h) {
