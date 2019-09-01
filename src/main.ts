@@ -21,10 +21,10 @@ const vertexSource = `
 `;
 
 document.addEventListener('DOMContentLoaded', function () {
-  const canvaBounds = document.getElementById('bounds').getBoundingClientRect();
-  const canva = document.getElementById('canvas');
-  canvas.width = canvaBounds.width;
-  canvas.height = canvaBounds.height;
+  const canvasBounds = document.getElementById('bounds').getBoundingClientRect();
+  const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  canvas.width = canvasBounds.width;
+  canvas.height = canvasBounds.height;
 
   const context = canvas.getContext('webgl');
   const program = createProgram(context, vertexSource, fragmentSource);

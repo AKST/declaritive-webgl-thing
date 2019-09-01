@@ -1,62 +1,64 @@
-export class PrimativeFiber {
-  constructor(programContext, primative, childFibers) {
-    this.programContext = programContext;
-    this.childFibers = childFibers;
-    this.primative = primative;
+import { ProgramContext } from '/src/renderer/program_context';
+
+interface IFiber {
+  childFibers: readonly Fiber[];
+}
+
+export type Fiber = PrimativeFiber | ComponentFiber;
+
+export class PrimativeFiber implements IFiber {
+  constructor(
+      public programContext: ProgramContext,
+      public primative: any,
+      public childFibers: Fiber[],
+  ) {
   }
 }
 
 export class ComponentSchedule {
-  constructor(updateFiberInternal, requestIdleCallback, cancelIdleCallback) {
-    this.componentFiber = undefined;
-    this._updateFiberInternal = updateFiberInternal;
-    this._nextUpdate = undefined;
-    this._requestIdleCallback = requestIdleCallback;
-    this._cancelIdleCallback = cancelIdleCallback;
-    this.updateFiber = this.updateFiber.bind(this);
+  private componentFiber: ComponentFiber | undefined;
+  private nextUpdate: number | undefined;
+
+  constructor(
+      private updateFiberInternal: (fiber: ComponentFiber) => void,
+      private requestIdleCallback: (cb: () => void) => number,
+      private cancelIdleCallback: (id: number) => void,
+  ) {
   }
 
-  setFiber(componentFiber) {
+  setFiber(componentFiber: ComponentFiber): void {
     this.componentFiber = componentFiber;
   }
 
-  updateFiber() {
+  updateFiber = () => {
     if (this.componentFiber) {
-      if (this._nextUpdate) {
-        this._cancelIdleCallback(this._nextUpdate);
-        this._nextUpdate = undefined;
-      }
-      this._nextUpdate = requestIdleCallback(() => this._updateFiberInternal(this.componentFiber));
+      this.cancelIdleCallback(this.nextUpdate);
+      this.nextUpdate = this.requestIdleCallback(() => this.updateFiberInternal(this.componentFiber));
     } else {
       throw new Error('tried updating fiber before it existed');
     }
-  }
+  };
 
   shouldUpdate(nextFiber: ComponentFiber) {
 
   }
 }
 
-export class ComponentFiber {
+export class ComponentFiber implements IFiber {
   constructor(
-      programContext,
-      hookState,
-      component,
-      props,
-      childFiber,
+      public programContext: ProgramContext,
+      public hookState: any,
+      public component: any,
+      public props: any,
+      public childFiber: ComponentFiber | PrimativeFiber,
   ) {
-    this.programContext = programContext;
-    this.hookState = hookState;
-    this.component = component;
-    this.props = props;
-    this.childFiber = childFiber;
   }
 
   setChildFiber(childFiber) {
     this.childFiber = childFiber;
   }
 
-  get childFibers () {
+  get childFibers() {
     return [this.childFiber];
   }
 }
