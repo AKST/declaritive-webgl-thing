@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
       ],
     }),
-  ], context, function (fiber) {
+  ], context, function onComplete(fiber) {
     console.log(fiber);
   });
 });

@@ -5,7 +5,7 @@ import {
   createComponentScheduleFactory,
 } from '/src/renderer/fiber';
 import { ProgramContext } from '/src/renderer/program_context';
-import { createHookStateFactory } from '/src/renderer/hook_state.js';
+import { createHookStateFactory } from '/src/renderer/hook_state';
 
 class Render {
   constructor(
