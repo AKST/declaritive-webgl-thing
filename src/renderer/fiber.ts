@@ -38,11 +38,6 @@ export class ComponentSchedule {
       throw new Error('tried updating fiber before it existed');
     }
   };
-
-  shouldUpdate(nextFiber: ComponentFiber): boolean {
-    // TODO
-    return false;
-  }
 }
 
 export class ComponentFiber implements IFiber {
@@ -61,6 +56,11 @@ export class ComponentFiber implements IFiber {
 
   get childFibers() {
     return [this.childFiber];
+  }
+
+  shouldUpdate(nextFiber: ComponentFiber): boolean {
+    // TODO
+    return false;
   }
 }
 

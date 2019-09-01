@@ -86,12 +86,13 @@ class Render {
     hookState.onRenderFinish();
 
     // TODO: children update
-    //const childFiber = this.renderUiNode(uiNodeOutput, programContext);
-    //const shouldUpdateChlidren = this._didFiberUpdate(childFiber, componentFiber.childFiber);
-    //componentFiber.setChildFiber(childFiber);
-    // if (shouldUpdateChlidren) {
-    //   console.warn('child update not implemented');
-    // }
+    const childFiber = this.renderUiNode(uiNodeOutput, programContext);
+    const shouldUpdateChlidren = this._didFiberUpdate(childFiber, componentFiber.childFiber);
+    componentFiber.setChildFiber(childFiber);
+
+    if (shouldUpdateChlidren) {
+      console.warn('child update not implemented');
+    }
   }
 
   _didFiberUpdate(nextFiber, currFiber) {

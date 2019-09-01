@@ -6,15 +6,15 @@ export function JitterTranslate({ uniformName, x = 0, y = 0, d, children }, env)
   const [xOffset, setXOffset] = env.useState(createOffsetValue(d));
   const [yOffset, setYOffset] = env.useState(createOffsetValue(d));
 
-  // env.useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     console.log('updating jitter!');
-  //     setXOffset(createOffsetValue(d));
-  //     setYOffset(createOffsetValue(d));
-  //   }, 1000);
+  env.useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('updating jitter!');
+      setXOffset(createOffsetValue(d));
+      setYOffset(createOffsetValue(d));
+    }, 1000);
 
-  //   return () => clearInterval(interval);
-  // }, []);
+    return () => clearInterval(interval);
+  }, []);
 
   return createElement('component', Translate, {
     uniformName,
