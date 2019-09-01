@@ -1,5 +1,6 @@
 import { createElement } from '/src/renderer/element.ts';
 import { Translate, JitterTranslate } from '/src/ui/translate';
+import { AnimateRotation } from '/src/ui/rotate';
 
 function squarePoints(x, y, w, h) {
   return [
@@ -27,52 +28,60 @@ const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
 
 export function Main({
   positionAttributeName: attributeName,
-  translateUniformName: uniformName,
+  rotationUniformName,
+  translateUniformName,
 }, env) {
 
-  env.useEffect(() => {
-    console.log('effect!');
-  }, []);
+  const createJitter = (children) => (
+      createElement('component', JitterTranslate, {
+        rate: 1000 / 30,
+        x: 0,
+        y: 0,
+        d: 0.02,
+        uniformName: translateUniformName,
+        children
+      })
+  );
 
-  return createElement('p:fragment', [
-    createElement('component', Translate, {
-      x: 0,
-      y: 0,
-      uniformName,
-      children: [
-        createElement('component', Square, {
-          attributeName,
-          xOffset: -0.5,
-          yOffset: -0.5,
-          size: 0.5,
-        }),
-        createElement('component', Square, {
-          attributeName,
-          xOffset: 0,
-          yOffset: 0,
-          size: 0.5,
-        }),
-      ],
-    }),
-    createElement('component', JitterTranslate, {
-      x: 0,
-      y: 0,
-      d: 0.25,
-      uniformName,
-      children: [
+  return createElement('component', AnimateRotation, {
+    period: 1000,
+    uniformName: rotationUniformName,
+    children: [
+      createElement('component', Translate, {
+        x: 0,
+        y: 0,
+        uniformName: translateUniformName,
+        children: [
+          createElement('component', Square, {
+            attributeName,
+            xOffset: -0.5,
+            yOffset: -0.5,
+            size: 0.5,
+          }),
+          createElement('component', Square, {
+            attributeName,
+            xOffset: 0,
+            yOffset: 0,
+            size: 0.5,
+          }),
+        ],
+      }),
+      createJitter([
         createElement('component', Square, {
           attributeName,
           xOffset: -0.5 + (0.5 * 0.25),
           yOffset: 0.5 * 0.25,
           size: 0.25,
-        }),
+        })
+      ]),
+      createJitter([
         createElement('component', Square, {
           attributeName,
-          xOffset: 0.5  * 0.25,
-          yOffset: -0.5 + (0.5 * 0.25),
-          size: 0.25,
-        }),
-      ]
-    }),
-  ]);
+            xOffset: 0.5  * 0.25,
+            yOffset: -0.5 + (0.5 * 0.25),
+            size: 0.25,
+        })
+      ]),
+    ],
+  });
 }

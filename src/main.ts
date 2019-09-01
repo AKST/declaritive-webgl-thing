@@ -5,18 +5,26 @@ import { createProgram } from '/src/util/webgl/create';
 import { Main } from '/src/ui/main';
 
 const fragmentSource = `
+  precision mediump float;
+  varying vec4 v_color;
+
   void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = v_color;
   }
 `;
 
 const vertexSource = `
-  attribute vec2 a_position;
+  precision mediump float;
 
+  attribute vec2 a_position;
   uniform vec2 u_translate;
+  uniform vec2 u_rotation;
+  varying vec4 v_color;
 
   void main() {
+    u_rotation;
     gl_Position = vec4(a_position + u_translate, 0.0, 1.0);
+    v_color = (gl_Position * 0.5) + 0.5;
   }
 `;
 
@@ -36,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         createElement('component', Main, {
           positionAttributeName: 'a_position',
           translateUniformName: 'u_translate',
+          rotationUniformName: 'u_rotation',
         })
       ],
     }),
