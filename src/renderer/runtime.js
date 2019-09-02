@@ -187,8 +187,8 @@ class Render {
 
 export function renderRoot(patch, context, onComplete) {
   const programContextFactory = (program) => new ProgramContext(context, program);
-  const requestIdleCallback = window.requestIdleCallback.bind(window) || window.setTimeout.bind(window);
-  const cancelIdleCallback = window.cancelIdleCallback.bind(window) || window.clearTimeout.bind(window);
+  const requestIdleCallback = (window.requestIdleCallback || window.setTimeout).bind(window);
+  const cancelIdleCallback = (window.cancelIdleCallback || window.clearTimeout).bind(window);
   const renderer = new Render(
       context,
       programContextFactory,
