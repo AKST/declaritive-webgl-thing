@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const program = createProgram(context, vertexSource, fragmentSource);
 
   renderRoot([
-    createElement('p:set-program', {
+    createElement('set-program', {
       program,
       children: [
         createElement(Main, {

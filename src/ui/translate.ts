@@ -24,7 +24,7 @@ export function JitterTranslate({ rate = 1000 / 30, uniformName, x = 0, y = 0, d
 }
 
 export function Translate({ uniformName, x, y, children }, env) {
-  return createElement('p:set-uniform', {
+  return createElement('set-uniform', {
     uniform: env.useUniform(uniformName, '2f'),
     value: [x, y],
     children,

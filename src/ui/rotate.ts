@@ -24,7 +24,7 @@ export function AnimateRotation({ period, uniformName, children }, env) {
 
 export function Rotation({ angle, children, uniformName }, env) {
   const radians = angle * Math.PI / 180;
-  return createElement('p:set-uniform', {
+  return createElement('set-uniform', {
     uniform: env.useUniform(uniformName, '2f'),
     value: [Math.sin(radians), Math.cos(radians)],
     children,

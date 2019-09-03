@@ -42,13 +42,11 @@ export function createElement<T>(element: Component<T>, props: T): Element;
 export function createElement<T>(element: Component<T> | string, props: any | T): Element {
   switch (typeof element) {
     case 'string': {
-      const [primativeProps] = props;
-      return UiNode.primative(Primative.createPrimative(element, primativeProps));
+      return UiNode.primative(Primative.createPrimative(element, props));
     }
 
     case 'function': {
-      const [component, componentProps] = props;
-      return UiNode.component(component, componentProps);
+      return UiNode.component(element, props);
     }
 
     default:

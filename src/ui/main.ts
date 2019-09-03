@@ -23,7 +23,7 @@ const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
   const drawKind = WebGLRenderingContext.TRIANGLES;
   const attribute = env.useAttribute(attributeName, 2);
 
-  return createElement('p:set-attribute-data', { attribute, buffer, drawKind });
+  return createElement('set-attribute-data', { attribute, buffer, drawKind });
 };
 
 export function Main({
