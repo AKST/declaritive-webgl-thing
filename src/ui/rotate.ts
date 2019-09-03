@@ -1,6 +1,14 @@
-import { createElement } from '/src/renderer/element';
+import { Environment } from '/src/renderer/base';
+import { createElement, Children } from '/src/renderer/element';
 
-export function AnimateRotation({ period, uniformName, children }, env) {
+type AnimateRotationProps = {
+  period: number;
+  children: Children;
+  uniformName: string;
+};
+
+export function AnimateRotation(props: AnimateRotationProps, env: Environment) {
+  const { period, uniformName, children } = props;
   const [angle, setAngle] = env.useState(0);
 
   env.useEffect(() => {
@@ -22,7 +30,14 @@ export function AnimateRotation({ period, uniformName, children }, env) {
   });
 }
 
-export function Rotation({ angle, children, uniformName }, env) {
+type RotationProps = {
+  angle: number;
+  children: Children;
+  uniformName: string;
+};
+
+export function Rotation(props: RotationProps, env: Environment) {
+  const { angle, children, uniformName } = props;
   const radians = angle * Math.PI / 180;
   return createElement('set-uniform', {
     uniform: env.useUniform(uniformName, '2f'),

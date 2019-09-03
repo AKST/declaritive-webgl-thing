@@ -1,8 +1,9 @@
-import { createElement } from '/src/renderer/element';
+import { Environment } from '/src/renderer/base';
+import { createElement, Children } from '/src/renderer/element';
 import { Translate, JitterTranslate } from '/src/ui/translate';
 import { AnimateRotation } from '/src/ui/rotate';
 
-function squarePoints(x, y, w, h) {
+function squarePoints(x: number, y: number, w: number, h: number) {
   return [
     x, y,
     x + w, y,
@@ -14,7 +15,16 @@ function squarePoints(x, y, w, h) {
   ];
 }
 
-const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
+
+type SquareProps = {
+  xOffset: number;
+  yOffset: number;
+  attributeName: string;
+  size: number;
+};
+
+const Square = (props: SquareProps, env: Environment) => {
+  const { xOffset, yOffset, attributeName, size } = props;
   const data = env.useMemo(() => (
       new Float32Array(squarePoints(xOffset, yOffset, size, size))
   ), [xOffset, yOffset, size]);
@@ -26,13 +36,19 @@ const Square = ({ xOffset, yOffset, attributeName, size }, env) => {
   return createElement('set-attribute-data', { attribute, buffer, drawKind });
 };
 
-export function Main({
-  positionAttributeName: attributeName,
-  rotationUniformName,
-  translateUniformName,
-}, env) {
+type MainProps = {
+  positionAttributeName: string;
+  rotationUniformName: string;
+  translateUniformName: string;
+};
 
-  const createJitter = (children) => (
+export function Main(props: MainProps, env: Environment) {
+  const {
+    positionAttributeName: attributeName,
+    rotationUniformName,
+    translateUniformName,
+  } = props;
+  const createJitter = (children: Children) => (
       createElement(JitterTranslate, {
         rate: 1000 / 30,
         x: 0,
@@ -77,9 +93,9 @@ export function Main({
       createJitter([
         createElement(Square, {
           attributeName,
-            xOffset: 0.5  * 0.25,
-            yOffset: -0.5 + (0.5 * 0.25),
-            size: 0.25,
+          xOffset: 0.5  * 0.25,
+          yOffset: -0.5 + (0.5 * 0.25),
+          size: 0.25,
         })
       ]),
     ],

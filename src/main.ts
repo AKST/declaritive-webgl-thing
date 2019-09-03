@@ -1,3 +1,5 @@
+import { checkExists } from '/src/util/types';
+import { Fiber } from '/src/renderer/fiber';
 import { renderRoot } from '/src/renderer/runtime';
 import { createElement } from '/src/renderer/element';
 import { createProgram } from '/src/util/webgl/create';
@@ -31,12 +33,13 @@ const vertexSource = `
 `;
 
 document.addEventListener('DOMContentLoaded', function () {
-  const canvasBounds = document.getElementById('bounds').getBoundingClientRect();
+  const canvasBoundsElement = checkExists(document.getElementById('bounds'), 'unable to find bounds');
+  const canvasBounds = canvasBoundsElement.getBoundingClientRect();
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   canvas.width = canvasBounds.width;
   canvas.height = canvasBounds.height;
 
-  const context = canvas.getContext('webgl');
+  const context = checkExists(canvas.getContext('webgl'), 'expected the context to exist');
   const program = createProgram(context, vertexSource, fragmentSource);
 
   renderRoot([
