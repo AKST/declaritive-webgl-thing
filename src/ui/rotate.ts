@@ -1,4 +1,4 @@
-import { createElement } from '/src/renderer/element.ts';
+import { createElement } from '/src/renderer/element';
 
 export function AnimateRotation({ period, uniformName, children }, env) {
   const [angle, setAngle] = env.useState(0);

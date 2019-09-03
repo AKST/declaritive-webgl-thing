@@ -1,4 +1,4 @@
-import { createElement } from '/src/renderer/element.ts';
+import { createElement } from '/src/renderer/element';
 import { Translate, JitterTranslate } from '/src/ui/translate';
 import { AnimateRotation } from '/src/ui/rotate';
 

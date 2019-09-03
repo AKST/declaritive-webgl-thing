@@ -1,8 +1,7 @@
 import { renderRoot } from '/src/renderer/runtime';
-import { createElement } from '/src/renderer/element.ts';
+import { createElement } from '/src/renderer/element';
 import { createProgram } from '/src/util/webgl/create';
-
-import { Main } from '/src/ui/main';
+import { Main } from '/src/ui/main.ts';
 
 const fragmentSource = `
   precision mediump float;

@@ -1,4 +1,4 @@
-import { createElement } from '/src/renderer/element.ts';
+import { createElement } from '/src/renderer/element';
 
 const createOffsetValue = (distance) => (Math.random() - 0.5) * distance;
 
