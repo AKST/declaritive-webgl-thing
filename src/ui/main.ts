@@ -53,7 +53,7 @@ export function Main(props: MainProps, env: Environment) {
         rate: 1000 / 30,
         x: 0,
         y: 0,
-        d: 0.02,
+        d: 0.2,
         uniformName: translateUniformName,
         children
       })
