@@ -22,9 +22,12 @@ const vertexSource = `
   varying vec4 v_color;
 
   void main() {
-    u_rotation;
-    gl_Position = vec4(a_position + u_translate, 0.0, 1.0);
-    v_color = (gl_Position * 0.5) + 0.5;
+    vec2 rotatedPosition = vec2(
+       a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+       a_position.y * u_rotation.y - a_position.x * u_rotation.x);
+
+    gl_Position = vec4(rotatedPosition + u_translate, 0.0, 1.0);
+    v_color = (gl_Position) + 0.5;
   }
 `;
 

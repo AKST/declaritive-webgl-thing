@@ -44,7 +44,7 @@ export function Main({
   );
 
   return createElement('component', AnimateRotation, {
-    period: 1000,
+    period: 10000,
     uniformName: rotationUniformName,
     children: [
       createElement('component', Translate, {

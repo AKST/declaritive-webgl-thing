@@ -8,7 +8,7 @@ export function AnimateRotation({ period, uniformName, children }, env) {
 
     let frame = requestAnimationFrame(function f(delta) {
       const percent = (delta - start) / period;
-      setAngle(Math.PI * 2 * percent);
+      setAngle(360 * percent);
       frame = requestAnimationFrame(f);
     });
 
@@ -23,9 +23,10 @@ export function AnimateRotation({ period, uniformName, children }, env) {
 }
 
 export function Rotation({ angle, children, uniformName }, env) {
+  const radians = angle * Math.PI / 180;
   return createElement('p:set-uniform', {
     uniform: env.useUniform(uniformName, '2f'),
-    value: [angle, 0],
+    value: [Math.sin(radians), Math.cos(radians)],
     children,
   });
 }
