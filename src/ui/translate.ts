@@ -15,7 +15,7 @@ export function JitterTranslate({ rate = 1000 / 30, uniformName, x = 0, y = 0, d
     return () => clearInterval(interval);
   }, [rate]);
 
-  return createElement('component', Translate, {
+  return createElement(Translate, {
     uniformName,
     x: x + xOffset,
     y: y + yOffset,

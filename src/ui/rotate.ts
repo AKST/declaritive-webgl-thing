@@ -15,7 +15,7 @@ export function AnimateRotation({ period, uniformName, children }, env) {
     return () => cancelAnimationFrame(frame);
   }, [period, setAngle]);
 
-  return createElement('component', Rotation, {
+  return createElement(Rotation, {
     uniformName,
     children,
     angle,

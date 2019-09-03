@@ -49,24 +49,24 @@ export type SetAttributeDataPrimative =
 export type FragmentPrimative =
     Readonly<{ type: 'fragment', children?: Children }>;
 
-export const createElement = (kind: any, ...props: any[]): Element => {
-  const [prefix, subKind] = kind.split(':');
-
-  switch (prefix) {
-    case 'p': {
+export function createElement<T>(element: string, props: any): Element;
+export function createElement<T>(element: Component<T>, props: T): Element;
+export function createElement<T>(element: Component<T> | string, props: any | T): Element {
+  switch (typeof element) {
+    case 'string': {
       const [primativeProps] = props;
-      return UiNode.primative(Primative.createPrimative(subKind, primativeProps));
+      return UiNode.primative(Primative.createPrimative(element, primativeProps));
     }
 
-    case 'component': {
+    case 'function': {
       const [component, componentProps] = props;
       return UiNode.component(component, componentProps);
     }
 
     default:
-      throw new Error(`element kind not supported, ${kind}`);
+      throw new Error(`element kind not supported, ${element}`);
   }
-};
+}
 
 export const UiNode = {
   component<T>(component: Component<T>, props: T): ComponentElement<T> {

@@ -33,7 +33,7 @@ export function Main({
 }, env) {
 
   const createJitter = (children) => (
-      createElement('component', JitterTranslate, {
+      createElement(JitterTranslate, {
         rate: 1000 / 30,
         x: 0,
         y: 0,
@@ -43,22 +43,22 @@ export function Main({
       })
   );
 
-  return createElement('component', AnimateRotation, {
+  return createElement(AnimateRotation, {
     period: 10000,
     uniformName: rotationUniformName,
     children: [
-      createElement('component', Translate, {
+      createElement(Translate, {
         x: 0,
         y: 0,
         uniformName: translateUniformName,
         children: [
-          createElement('component', Square, {
+          createElement(Square, {
             attributeName,
             xOffset: -0.5,
             yOffset: -0.5,
             size: 0.5,
           }),
-          createElement('component', Square, {
+          createElement(Square, {
             attributeName,
             xOffset: 0,
             yOffset: 0,
@@ -67,7 +67,7 @@ export function Main({
         ],
       }),
       createJitter([
-        createElement('component', Square, {
+        createElement(Square, {
           attributeName,
           xOffset: -0.5 + (0.5 * 0.25),
           yOffset: 0.5 * 0.25,
@@ -75,7 +75,7 @@ export function Main({
         })
       ]),
       createJitter([
-        createElement('component', Square, {
+        createElement(Square, {
           attributeName,
             xOffset: 0.5  * 0.25,
             yOffset: -0.5 + (0.5 * 0.25),

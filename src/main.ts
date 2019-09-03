@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     createElement('p:set-program', {
       program,
       children: [
-        createElement('component', Main, {
+        createElement(Main, {
           positionAttributeName: 'a_position',
           translateUniformName: 'u_translate',
           rotationUniformName: 'u_rotation',
