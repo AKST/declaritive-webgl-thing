@@ -99,7 +99,7 @@ class Render {
     componentFiber.setChildFiber(childFiber);
 
     if (shouldUpdateChlidren) {
-      console.warn('child update not implemented');
+      // TODO: Add updating children.
     }
   };
 

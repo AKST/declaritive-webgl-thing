@@ -24,7 +24,6 @@ export class ProgramContext {
     if (!location) {
       const location = this.context.getUniformLocation(this.program, name);
       this.memoUniformLocation.set(name, location);
-      console.log(location, name);
       return checkExists(location, 'failed to create Uniform Location');
     }
 
