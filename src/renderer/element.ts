@@ -3,7 +3,24 @@ import {
   BufferInfo,
   Environment,
   UniformLocation,
+  Props,
 } from '/src/renderer/base';
+
+export function propsAreEqual(a: Props, b: Props): boolean {
+  function toEqual(a: any, b: any) {
+    if (a == null && b == null) return false;
+    if (a == null || b == null) return false;
+    if (typeof a.toEqual === 'function') {
+      return a.toEqual(a, b);
+    }
+    return a === b;
+  }
+
+  for (const k of Object.keys(a)) {
+    if (!toEqual(a[k], b[k])) return false;
+  }
+  return true;
+}
 
 export type Component<T> = (props: T, environment: Environment) => Element;
 
@@ -13,16 +30,29 @@ export type Element =
 
 export type Children = readonly Element[];
 
-export type ComponentElement<T> = {
-  type: 'component';
-  component: Component<T>;
-  props: T;
-};
+export class ComponentElement<T extends Props> {
+  constructor(
+      public component: Component<T>,
+      public props: T,
+  ) {
+  }
 
-export type PrimativeElement = {
-  type: 'primative',
-  primative: Primative;
-};
+  toEqual<U extends Props>(element: ComponentElement<U>): boolean {
+    return propsAreEqual(this.props, element.props);
+  }
+}
+
+export class PrimativeElement {
+  constructor(
+      public primative: Primative,
+  ) {
+  }
+
+  toEqual(other: PrimativeElement): boolean {
+    return this.primative.type === other.primative.type
+        && propsAreEqual(this.primative.props, other.primative.props);
+  }
+}
 
 type PrimativeKind = 'fragment' | 'set-program' | 'set-uniform' | 'set-attribute-data';
 
@@ -74,10 +104,10 @@ export function createElement<T, K extends PrimativeKind>(element: Component<T> 
 
 export const UiNode = {
   component<T>(component: Component<T>, props: T): ComponentElement<T> {
-    return { type: 'component', component, props };
+    return new ComponentElement(component, props);
   },
 
   primative(primative: Primative): PrimativeElement {
-    return { type: 'primative', primative };
+    return new PrimativeElement(primative);
   }
 };

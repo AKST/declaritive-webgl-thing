@@ -1,6 +1,6 @@
 import { checkExists } from '/src/util/types';
 import { createProgram } from '/src/util/webgl/create';
-import { createElement } from '/src/renderer/element';
+import { createElement } from '/src/renderer/element/element';
 import { Node } from '/src/renderer/state_tree/state_tree';
 import { render } from '/src/renderer/index';
 import { Main } from '/src/ui/main.ts';

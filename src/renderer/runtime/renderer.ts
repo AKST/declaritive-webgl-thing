@@ -1,5 +1,10 @@
 import { createRequestIdleCallback } from '/src/util/browser/request_idle_callback';
-import { Element, Primative, ComponentElement } from '/src/renderer/element';
+import {
+  Element,
+  Primative,
+  ComponentElement,
+  PrimativeElement,
+} from '/src/renderer/element/element';
 import { createHookStateFactory, HookStateFactory } from '/src/renderer/hook_state/hook_state';
 import {
   createProgramContextFactory,
@@ -25,17 +30,13 @@ export class Renderer {
   }
 
   private renderElement(element: Element, programContext: ProgramContext): Node {
-    switch (element.type) {
-      case 'primative':
-        return this.renderPrimative(element.primative, programContext);
-
-      case 'component': {
-        return this.renderComponent(element, programContext);
-      }
-
-      default:
-        throw new Error(`unsuppported ui node: ${element}`);
+    if (element instanceof PrimativeElement) {
+      return this.renderPrimative(element.primative, programContext);
     }
+    else if (element instanceof ComponentElement) {
+      return this.renderComponent(element, programContext);
+    }
+    throw new Error(`unsuppported ui node: ${element}`);
   }
 
   private renderComponent<T>(element: ComponentElement<T>, programContext: ProgramContext): Node {

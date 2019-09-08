@@ -1,8 +1,4 @@
-import {
-  Node,
-  ComponentNode,
-  PrimativeNode,
-} from '/src/renderer/state_tree/state_tree';
+import { Node, ComponentNode, PrimativeNode } from '/src/renderer/state_tree/state_tree';
 
 export class Painter {
   constructor(private readonly context: WebGLRenderingContext) {

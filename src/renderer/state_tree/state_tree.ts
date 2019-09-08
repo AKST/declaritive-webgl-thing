@@ -1,6 +1,5 @@
 import { Props } from '/src/renderer/base';
-import { Primative } from '/src/renderer/element';
-import { Component } from '/src/renderer/element';
+import { Primative, Component } from '/src/renderer/element/element';
 import { ProgramContext } from '/src/renderer/program_context/program_context';
 import { HookState } from '/src/renderer/hook_state/hook_state';
 

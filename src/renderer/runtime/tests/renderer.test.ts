@@ -1,4 +1,4 @@
-import { Element, createElement } from '/src/renderer/element';
+import { Element, createElement } from '/src/renderer/element/element';
 import {
   ComponentNode,
   PrimativeNode,
@@ -15,19 +15,13 @@ describe('Renderer', () => {
     it('rendering a primative element', () => {
       const { runtime } = createRenderer();
       const primativeProps = {} as any;
-      const primative: Element = {
-        type: 'primative',
-        primative: {
-          type: 'set-attribute-data',
-          props: primativeProps
-        },
-      };
+      const element = createElement('set-attribute-data', primativeProps);
 
-      const output = runtime.createStateTree(primative);
+      const output = runtime.createStateTree(element);
 
       expect(output).toEqual(
           new PrimativeNode(
-              primative.primative,
+              { type: 'set-attribute-data', props: primativeProps },
               undefined,
           ),
       )
@@ -40,10 +34,9 @@ describe('Renderer', () => {
       const Component = createComponent<{ a: number }>(childElement);
       const props = { a: 2 };
 
-      const componentElement: Element = { type: 'component', component: Component, props };
-
+      const element = createElement(Component, props);
       const childOutput = runtime.createStateTree(childElement);
-      const output = runtime.createStateTree(componentElement);
+      const output = runtime.createStateTree(element);
 
       expect(mocks.nodeRefresh.setNode).toBeCalledWith(output);
       expect(mocks.programContextFactory).toBeCalled();
