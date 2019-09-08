@@ -1,5 +1,5 @@
 import { Environment } from '/src/renderer/base';
-import { createElement, Children } from '/src/renderer/element';
+import { createElement, Children } from '/src/renderer/element/element';
 
 const createOffsetValue = (distance: number) => (Math.random() - 0.5) * distance;
 
