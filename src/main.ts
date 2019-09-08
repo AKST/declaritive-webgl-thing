@@ -1,5 +1,5 @@
 import { checkExists } from '/src/util/types';
-import { renderRoot } from '/src/renderer/runtime';
+import { renderRoot } from '/src/renderer/runtime/runtime';
 import { createElement } from '/src/renderer/element';
 import { createProgram } from '/src/util/webgl/create';
 import { Main } from '/src/ui/main.ts';
