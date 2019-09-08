@@ -1,9 +1,9 @@
 import { Element } from '/src/renderer/element';
 import { Node } from '/src/renderer/state_tree/state_tree';
 import { Painter } from './painter';
-import { Renderer, createRenderer } from './renderer';
+import { Renderer } from './renderer';
 
-class Runtime {
+export class Runtime {
   private rootNodes: Node[] = [];
 
   constructor(
@@ -24,11 +24,6 @@ class Runtime {
   };
 }
 
-export function renderRoot(
-    elements: Element[],
-    context: WebGLRenderingContext,
-    onComplete: (node: Node[]) => void,
-) {
-  const runtime = new Runtime(new Painter(context), createRenderer(context));
-  onComplete(runtime.renderRoot(elements));
+export function createRuntime(painter: Painter, renderer: Renderer): Runtime {
+  return new Runtime(painter, renderer);
 }

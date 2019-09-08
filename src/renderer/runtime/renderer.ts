@@ -99,9 +99,7 @@ export class Renderer {
   };
 }
 
-export function createRenderer(
-    context: WebGLRenderingContext,
-) {
+export function createRenderer(context: WebGLRenderingContext) {
   const { requestIdleCallback, cancelIdleCallback } = createRequestIdleCallback();
 
   return new Renderer(

@@ -1,7 +1,8 @@
 import { checkExists } from '/src/util/types';
-import { renderRoot } from '/src/renderer/runtime/runtime';
-import { createElement } from '/src/renderer/element';
 import { createProgram } from '/src/util/webgl/create';
+import { createElement } from '/src/renderer/element';
+import { Node } from '/src/renderer/state_tree/state_tree';
+import { render } from '/src/renderer/index';
 import { Main } from '/src/ui/main.ts';
 
 const fragmentSource = `
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const context = checkExists(canvas.getContext('webgl'), 'expected the context to exist');
   const program = createProgram(context, vertexSource, fragmentSource);
 
-  renderRoot([
+  render([
     createElement('set-program', {
       program,
       children: [
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
       ],
     }),
-  ], context, function onComplete(fiber) {
-    console.log(fiber);
+  ], context, function onComplete(nodes: readonly Node[]) {
+    console.log(nodes);
   });
 });
