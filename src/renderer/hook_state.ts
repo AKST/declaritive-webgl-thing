@@ -1,4 +1,4 @@
-import { Dependencies, Environment, RunEffect } from '/src/renderer/element';
+import { Dependencies, Environment, RunEffect } from '/src/renderer/base';
 import { ProgramContext } from '/src/renderer/program_context';
 
 type QueueEffect = (callback: () => void) => void;
@@ -71,8 +71,10 @@ class EffectNode {
   }
 }
 
+type HookNode = MemoValue<unknown> | StateNode<unknown> | EffectNode;
+
 export class HookState implements Environment {
-  private hooks = [];
+  private hooks: HookNode[] = [];
   private hookPosition: number = 0;
   private initialRender: boolean = true;
 
@@ -84,21 +86,21 @@ export class HookState implements Environment {
   ) {
   }
 
-  useAttribute(name, size, program) {
+  useAttribute(name: string, size: number) {
     return this.useMemo(() => {
       const location = this.programContext.getAttributeLocation(name);
       return { location, size };
     }, [name, size]);
   }
 
-  useUniform(name, type) {
+  useUniform(name: string, type: string) {
     return this.useMemo(() => {
       const location = this.programContext.getUniformLocation(name);
       return { location, type };
     }, [name, type]);
   }
 
-  useBuffer(data, kind) {
+  useBuffer(data: Float32Array, kind: number) {
     return this.useMemo(() => {
       const buffer = this.programContext.createBuffer()
       return { buffer, kind, data };
@@ -111,6 +113,11 @@ export class HookState implements Environment {
       this.hooks.push(effectNode);
     } else {
       const effectNode = this.getNextHook();
+
+      if (!(effectNode instanceof EffectNode)) {
+        throw new Error('hook call order out of sync');
+      }
+
       effectNode.syncEffect(runEffect, dependencies);
     }
   }
@@ -121,6 +128,11 @@ export class HookState implements Environment {
       this.hooks.push(effectNode);
     } else {
       const effectNode = this.getNextHook();
+
+      if (!(effectNode instanceof EffectNode)) {
+        throw new Error('hook call order out of sync');
+      }
+
       effectNode.syncEffect(runEffect, dependencies);
     }
   }
@@ -128,11 +140,16 @@ export class HookState implements Environment {
   useState<T>(value: T): [T, (value: T) => void] {
     if (this.initialRender) {
       const stateNode = new StateNode(value, this.requestUpdate);
-      this.hooks.push(stateNode);
+      this.hooks.push(stateNode as StateNode<unknown>);
       return [stateNode.value, stateNode.setValue];
     } else {
       const stateNode = this.getNextHook();
-      return [stateNode.value, stateNode.setValue];
+
+      if (!(stateNode instanceof StateNode)) {
+        throw new Error('hook call order out of sync');
+      }
+
+      return [stateNode.value as T, stateNode.setValue];
     }
   }
 
@@ -142,7 +159,12 @@ export class HookState implements Environment {
       this.hooks.push(memoValue);
       return memoValue.value;
     } else {
-      const memoValue = this.getNextHook();
+      const memoValue = this.getNextHook() as MemoValue<T>;
+
+      if (!(memoValue instanceof MemoValue)) {
+        throw new Error('hook order out of sync');
+      }
+
       memoValue.updateIfChange(createValue, dependencies);
       return memoValue.value;
     }
@@ -158,10 +180,12 @@ export class HookState implements Environment {
   }
 }
 
+export type HookStateFactory = (programContext: ProgramContext, scheduleUpdate: () => void) => HookState;
+
 export function createHookStateFactory(
-  requestIdleCallback,
-) {
-  const runImmediately = (callback) => {
+  requestIdleCallback: (cb: () => void) => number,
+): HookStateFactory {
+  const runImmediately = (callback: () => void) => {
     try {
       callback()
     } catch (e) {

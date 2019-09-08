@@ -1,5 +1,7 @@
+import { checkExists } from '/src/util/types';
+
 export function createShader(context: WebGLRenderingContext, shaderSource: string, type: number): WebGLShader {
-  const shader = context.createShader(type);
+  const shader = checkExists(context.createShader(type), 'shader exists');
   context.shaderSource(shader, shaderSource);
   context.compileShader(shader);
   if (context.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS)) {
@@ -14,7 +16,7 @@ export function createProgram(
     vertexSource: string,
     fragmentSource: string,
 ): WebGLProgram {
-  const program = context.createProgram();
+  const program = checkExists(context.createProgram(), 'program exists');
   context.attachShader(program, createShader(context, vertexSource, context.VERTEX_SHADER));
   context.attachShader(program, createShader(context, fragmentSource, context.FRAGMENT_SHADER));
   context.linkProgram(program);

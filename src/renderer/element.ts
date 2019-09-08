@@ -1,22 +1,17 @@
-export type RunEffect = () => (() => void) | undefined;
-export type Dependencies = any[]
-export type AttributeLocation = { location: number, size: number };
-export type UniformLocation = { location: WebGLUniformLocation, type: string };
-
-export interface Environment {
-  useAttribute(name: string, size: number, program: any): AttributeLocation;
-  useUniform(name: string, size: number, program: any): UniformLocation;
-  useState<T>(value: T): [T, (value: T) => void];
-  useMemo<T>(createValue: () => T, dependencies: Dependencies): T;
-  useEffect(runEffect: RunEffect, dependencies: Dependencies): void;
-  useLayoutEffect(runEffect: RunEffect, dependencies: Dependencies): void;
-}
+import {
+  AttributeLocation,
+  BufferInfo,
+  Environment,
+  UniformLocation,
+} from '/src/renderer/base';
 
 export type Component<T> = (props: T, environment: Environment) => Element;
 
 export type Element =
     | PrimativeElement
     | ComponentElement<any>;
+
+export type Children = readonly Element[];
 
 export type ComponentElement<T> = {
   type: 'component';
@@ -29,44 +24,43 @@ export type PrimativeElement = {
   primative: Primative;
 };
 
+type PrimativeKind = 'fragment' | 'set-program' | 'set-uniform' | 'set-attribute-data';
+
+type PrimativePropMap = {
+  'fragment': { children?: Children };
+  'set-attribute-data': { attribute: AttributeLocation, buffer: BufferInfo, drawKind: number, children?: Children };
+  'set-program': { program: WebGLProgram, children?: Children };
+  'set-uniform': { uniform: UniformLocation, value: number[], children?: Children };
+};
+
+type AbstractPrimative<T extends PrimativeKind> = { type: T, props: PrimativePropMap[T] };
+
 export type Primative =
-  | FragmentPrimative
-  | SetAttributeDataPrimative
-  | SetUniformPrimative
-  | SetProgramPrimative;
+  | AbstractPrimative<'fragment'>
+  | AbstractPrimative<'set-attribute-data'>
+  | AbstractPrimative<'set-program'>
+  | AbstractPrimative<'set-uniform'>;
 
-type Children = readonly Element[];
+type CreateElement =
+  | (<T>(element: Component<T>, props: T) => Element)
+  | (<K extends PrimativeKind>(element: K, props: PrimativePropMap[K]) => Element);
 
-export type SetProgramPrimative =
-    Readonly<{ type: 'set-program', program: WebGLProgram, children?: Children }>;
-
-export type SetUniformPrimative =
-    Readonly<{ type: 'set-uniform', uniform: any, value: any, children?: Children }>;
-
-export type SetAttributeDataPrimative =
-    Readonly<{ type: 'set-attribute-data', attribute: any, buffer: any, drawKind: any }>;
-
-export type FragmentPrimative =
-    Readonly<{ type: 'fragment', children?: Children }>;
-
-export const createElement = (kind: any, ...props: any[]): Element => {
-  const [prefix, subKind] = kind.split(':');
-
-  switch (prefix) {
-    case 'p': {
-      const [primativeProps] = props;
-      return UiNode.primative(Primative.createPrimative(subKind, primativeProps));
+export function createElement<T, K extends PrimativeKind>(element: Component<T>, props: T): Element;
+export function createElement<T, K extends PrimativeKind>(element: K, props: PrimativePropMap[K]): Element;
+export function createElement<T, K extends PrimativeKind>(element: Component<T> | K, props: T | PrimativePropMap[K]): Element {
+  switch (typeof element) {
+    case 'string': {
+      return UiNode.primative({ type: element, props } as Primative);
     }
 
-    case 'component': {
-      const [component, componentProps] = props;
-      return UiNode.component(component, componentProps);
+    case 'function': {
+      return UiNode.component(element, props as T);
     }
 
     default:
-      throw new Error(`element kind not supported, ${kind}`);
+      throw new Error(`element kind not supported, ${element}`);
   }
-};
+}
 
 export const UiNode = {
   component<T>(component: Component<T>, props: T): ComponentElement<T> {
@@ -76,45 +70,4 @@ export const UiNode = {
   primative(primative: Primative): PrimativeElement {
     return { type: 'primative', primative };
   }
-};
-
-export const Primative = {
-  fragment(children?: Children): FragmentPrimative {
-    return { type: 'fragment', children };
-  },
-
-  setAttributeData(attribute: any, buffer: any, drawKind: any): SetAttributeDataPrimative {
-    return { type: 'set-attribute-data', attribute, buffer, drawKind };
-  },
-
-  setUniform(uniform: any, value: any, children?: Children): SetUniformPrimative {
-    return { type: 'set-uniform', uniform, value, children };
-  },
-
-  setProgram(program: WebGLProgram, children?: Children): SetProgramPrimative {
-    return { type: 'set-program', program, children };
-  },
-
-  createPrimative(kind: string, props: any): Primative {
-    switch (kind) {
-      case 'set-attribute-data':
-        return Primative.setAttributeData(
-            props.attribute,
-            props.buffer,
-            props.drawKind,
-        );
-
-      case 'set-program':
-        return Primative.setProgram(props.program, props.children);
-
-      case 'set-uniform':
-        return Primative.setUniform(props.uniform, props.value, props.children);
-
-      case 'fragment':
-        return Primative.fragment(props);
-
-      default:
-        throw new Error(`unknown primative, ${kind}`);
-    }
-  },
 };

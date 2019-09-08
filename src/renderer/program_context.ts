@@ -6,7 +6,7 @@ export class ProgramContext {
 
   constructor(
       private context: WebGLRenderingContext,
-      private program: WebGLProgram,
+      private program?: WebGLProgram,
   ) {
   }
 
@@ -17,10 +17,13 @@ export class ProgramContext {
   getUniformLocation(name: string): WebGLUniformLocation {
     const location = this.memoUniformLocation.get(name);
 
+    if (this.program == null) {
+      throw new Error('no specified program');
+    }
+
     if (!location) {
       const location = this.context.getUniformLocation(this.program, name);
       this.memoUniformLocation.set(name, location);
-      console.log(location, name);
       return checkExists(location, 'failed to create Uniform Location');
     }
 
@@ -29,6 +32,10 @@ export class ProgramContext {
 
   getAttributeLocation(name: string): number {
     const location = this.memoAttributeLocation.get(name);
+
+    if (this.program == null) {
+      throw new Error('no specified program');
+    }
 
     if (!location) {
       const location = this.context.getAttribLocation(this.program, name);
