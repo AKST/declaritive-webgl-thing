@@ -1,20 +1,20 @@
+import { Props } from '/src/renderer/base';
 import { Primative } from '/src/renderer/element';
 import { Component } from '/src/renderer/element';
-import { ProgramContext } from '/src/renderer/program_context';
-import { HookState } from '/src/renderer/hook_state';
+import { ProgramContext } from '/src/renderer/program_context/program_context';
+import { HookState } from '/src/renderer/hook_state/hook_state';
 
-export type Node = PrimativeNode | ComponentNode<unknown>;
+export type Node = PrimativeNode | ComponentNode<any>;
 
 export class PrimativeNode {
   constructor(
-      public programContext: ProgramContext,
       public primative: Primative,
       public childNodes?: Node[],
   ) {
   }
 }
 
-export class ComponentNode<T> {
+export class ComponentNode<T extends Props> {
   constructor(
       public programContext: ProgramContext,
       public hookState: HookState,
@@ -24,12 +24,26 @@ export class ComponentNode<T> {
   ) {
   }
 
+  setProps(props: T) {
+    this.props = props;
+  }
+
   setChildNode(childNode: Node) {
     this.childNode = childNode;
   }
 
-  shouldUpdate(nextNode: ComponentNode<unknown>): boolean {
-    // TODO
-    return false;
+  matchesProps(otherProps: any): boolean {
+    if (typeof otherProps !== 'object') return false;
+    const ownKeys = Object.keys(this.props);
+    const otherKeys = Object.keys(otherProps);
+
+    if (ownKeys.length != otherKeys.length) return false;
+
+    for (const key of ownKeys) {
+      const otherValue = (otherProps as T)[key];
+      if (otherValue !== this.props[key]) return false;
+    }
+
+    return true;
   }
 }

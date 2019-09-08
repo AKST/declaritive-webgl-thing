@@ -1,29 +1,17 @@
 import { createRequestIdleCallback } from '/src/util/browser/request_idle_callback';
+import { Element, Primative, ComponentElement } from '/src/renderer/element';
+import { createHookStateFactory, HookStateFactory } from '/src/renderer/hook_state/hook_state';
 import {
-  Element,
-  Primative,
-  PrimativeElement,
-  Component,
-  ComponentElement,
-} from '/src/renderer/element';
-import {
-  Node,
-  PrimativeNode,
-  ComponentNode,
-} from '/src/renderer/state_tree/state_tree';
-import {
-  createNodeRefreshFactory,
-  NodeRefreshFactory,
-  NodeRefresh,
-} from '/src/renderer/state_tree/node_refresh';
-import { ProgramContext } from '/src/renderer/program_context';
-import { createHookStateFactory, HookStateFactory } from '/src/renderer/hook_state';
+  createProgramContextFactory,
+  ProgramContext,
+  ProgramContextFactory,
+} from '/src/renderer/program_context/program_context';
+import { createNodeRefreshFactory, NodeRefreshFactory } from '/src/renderer/state_tree/node_refresh';
+import { Node, PrimativeNode, ComponentNode } from '/src/renderer/state_tree/state_tree';
 
 export type ProgramContextFactory = (program?: WebGLProgram) => ProgramContext;
 
 export class Renderer {
-  private rootNodes: Node[] = [];
-
   constructor(
       private readonly programContextFactory: ProgramContextFactory,
       private readonly hookStateFactory: HookStateFactory,
@@ -36,7 +24,7 @@ export class Renderer {
     return this.renderElement(element, outerContext);
   }
 
-  renderElement(element: Element, programContext: ProgramContext): Node {
+  private renderElement(element: Element, programContext: ProgramContext): Node {
     switch (element.type) {
       case 'primative':
         return this.renderPrimative(element.primative, programContext);
@@ -50,12 +38,12 @@ export class Renderer {
     }
   }
 
-  private renderComponent(element: ComponentElement<unknown>, programContext: ProgramContext): Node {
-    const nodeRefresh = this.nodeRefreshFactory(this.updateComponent);
+  private renderComponent<T>(element: ComponentElement<T>, programContext: ProgramContext): Node {
+    const nodeRefresh = this.nodeRefreshFactory<T>(this.updateComponent);
     const hookState = this.hookStateFactory(programContext, nodeRefresh.updateNode);
     const elementOutput = element.component(element.props, hookState);
     const childNode = this.renderElement(elementOutput, programContext);
-    const componentNode = new ComponentNode(
+    const componentNode = new ComponentNode<T>(
         programContext,
         hookState,
         element.component,
@@ -78,12 +66,12 @@ export class Renderer {
         const { program } = primative.props;
         const programContext = this.programContextFactory(program);
         const childNodes = createChildNodes(programContext);
-        return new PrimativeNode(programContext, primative, childNodes);
+        return new PrimativeNode(primative, childNodes);
       }
 
       default: {
         const childNodes = createChildNodes(parentProgramContext);
-        return new PrimativeNode(parentProgramContext, primative, childNodes);
+        return new PrimativeNode(primative, childNodes);
       }
     }
   }
@@ -103,7 +91,7 @@ export function createRenderer(context: WebGLRenderingContext) {
   const { requestIdleCallback, cancelIdleCallback } = createRequestIdleCallback();
 
   return new Renderer(
-      (program?: WebGLProgram) => new ProgramContext(context, program),
+      createProgramContextFactory(context),
       createHookStateFactory(requestIdleCallback),
       createNodeRefreshFactory(requestIdleCallback, cancelIdleCallback),
   );

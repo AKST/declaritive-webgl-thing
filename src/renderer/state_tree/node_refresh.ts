@@ -1,7 +1,7 @@
 import { ComponentNode } from './state_tree';
 
 export class NodeRefresh<T> {
-  private componentNode: ComponentNode<T> | undefined;
+  private componentNode?: ComponentNode<T>;
   private nextUpdate: number | undefined;
 
   constructor(

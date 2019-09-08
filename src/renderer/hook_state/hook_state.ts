@@ -1,5 +1,5 @@
 import { Dependencies, Environment, RunEffect } from '/src/renderer/base';
-import { ProgramContext } from '/src/renderer/program_context';
+import { ProgramContext } from '/src/renderer/program_context/program_context';
 
 type QueueEffect = (callback: () => void) => void;
 

@@ -1,3 +1,5 @@
+export type Props = Record<string, any>;
+
 export type RunEffect = () => (() => void) | undefined;
 
 export type Dependencies = any[]

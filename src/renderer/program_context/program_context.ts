@@ -1,8 +1,8 @@
 import { checkExists } from '/src/util/types';
 
 export class ProgramContext {
-  memoAttributeLocation = new Map();
-  memoUniformLocation = new Map();
+  private readonly memoAttributeLocation = new Map();
+  private readonly memoUniformLocation = new Map();
 
   constructor(
       private context: WebGLRenderingContext,
@@ -45,4 +45,12 @@ export class ProgramContext {
 
     return location;
   }
+}
+
+export type ProgramContextFactory = (program?: WebGLProgram) => ProgramContext;
+
+export function createProgramContextFactory(
+  context: WebGLRenderingContext,
+): ProgramContextFactory {
+  return program => new ProgramContext(context, program);
 }

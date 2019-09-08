@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start": "parcel index.html",
+    "type": "tsc --noEmit",
     "test": "jest"
   },
   "devDependencies": {
