@@ -7,7 +7,7 @@ export class NodeRefresh<T> {
   constructor(
       private updateNodeInternal: (node: ComponentNode<T>) => void,
       private requestIdleCallback: (cb: () => void) => number,
-      private cancelIdleCallback: (id: number) => void,
+      private cancelIdleCallback: (id?: number) => void,
   ) {
   }
 
@@ -21,7 +21,7 @@ export class NodeRefresh<T> {
     }
 
     const { componentNode } = this;
-    if (this.nextUpdate) this.cancelIdleCallback(this.nextUpdate);
+    this.cancelIdleCallback(this.nextUpdate);
     this.nextUpdate = this.requestIdleCallback(() => this.updateNodeInternal(componentNode));
   };
 }
@@ -30,7 +30,7 @@ export type NodeRefreshFactory = <T>(updateNode: (node: ComponentNode<T>) => voi
 
 export function createNodeRefreshFactory(
     requestIdleCallback: (callback: () => void) => number,
-    cancelIdleCallback: (value: number) => void,
+    cancelIdleCallback: (value?: number) => void,
 ): NodeRefreshFactory {
   return updateNode => new NodeRefresh(
       updateNode,
