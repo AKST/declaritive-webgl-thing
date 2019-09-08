@@ -1,5 +1,4 @@
 import { checkExists } from '/src/util/types';
-import { Fiber } from '/src/renderer/fiber';
 import { renderRoot } from '/src/renderer/runtime';
 import { createElement } from '/src/renderer/element';
 import { createProgram } from '/src/util/webgl/create';

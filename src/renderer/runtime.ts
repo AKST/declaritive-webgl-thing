@@ -6,37 +6,39 @@ import {
   ComponentElement,
 } from '/src/renderer/element.ts';
 import {
-  Fiber,
-  PrimativeFiber,
-  ComponentFiber,
-  ComponentSchedule,
-  createComponentScheduleFactory,
-  ComponentScheduleFactory,
-} from '/src/renderer/fiber';
+  Node,
+  PrimativeNode,
+  ComponentNode,
+} from '/src/renderer/state_tree/state_tree';
+import {
+  createNodeRefreshFactory,
+  NodeRefreshFactory,
+  NodeRefresh,
+} from '/src/renderer/state_tree/node_refresh';
 import { ProgramContext } from '/src/renderer/program_context';
 import { createHookStateFactory, HookStateFactory } from '/src/renderer/hook_state';
 
 type ProgramContextFactory = (program?: WebGLProgram) => ProgramContext;
 
 class Render {
-  private rootFibers: Fiber[] = [];
+  private rootNodes: Node[] = [];
 
   constructor(
       private readonly context: WebGLRenderingContext,
       private readonly programContextFactory: ProgramContextFactory,
       private readonly hookStateFactory: HookStateFactory,
-      private readonly componentScheduleFactory: ComponentScheduleFactory,
+      private readonly nodeRefreshFactory: NodeRefreshFactory,
   ) {
   }
 
-  renderRoot(elements: Element[]): Fiber[] {
+  renderRoot(elements: Element[]): Node[] {
     const outerContext = this.programContextFactory();
-    this.rootFibers = elements.map(element => this.renderElement(element, outerContext));
+    this.rootNodes = elements.map(element => this.renderElement(element, outerContext));
     this.paint();
-    return this.rootFibers;
+    return this.rootNodes;
   }
 
-  private renderElement(element: Element, programContext: ProgramContext): Fiber {
+  private renderElement(element: Element, programContext: ProgramContext): Node {
     switch (element.type) {
       case 'primative':
         return this.renderPrimative(element.primative, programContext);
@@ -50,25 +52,25 @@ class Render {
     }
   }
 
-  private renderComponent(element: ComponentElement<unknown>, programContext: ProgramContext): Fiber {
-    const componentSchedule = this.componentScheduleFactory(this.updateComponent);
-    const hookState = this.hookStateFactory(programContext, componentSchedule.updateFiber);
+  private renderComponent(element: ComponentElement<unknown>, programContext: ProgramContext): Node {
+    const nodeRefresh = this.nodeRefreshFactory(this.updateComponent);
+    const hookState = this.hookStateFactory(programContext, nodeRefresh.updateNode);
     const elementOutput = element.component(element.props, hookState);
-    const childFiber = this.renderElement(elementOutput, programContext);
-    const componentFiber = new ComponentFiber(
+    const childNode = this.renderElement(elementOutput, programContext);
+    const componentNode = new ComponentNode(
         programContext,
         hookState,
         element.component,
         element.props,
-        childFiber,
+        childNode,
     );
     hookState.onRenderFinish();
-    componentSchedule.setFiber(componentFiber);
-    return componentFiber;
+    nodeRefresh.setNode(componentNode);
+    return componentNode;
   }
 
-  private renderPrimative(primative: Primative, parentProgramContext: ProgramContext): Fiber {
-    const createChildFibers = (programContext: ProgramContext): Fiber[] | undefined =>
+  private renderPrimative(primative: Primative, parentProgramContext: ProgramContext): Node {
+    const createChildNodes = (programContext: ProgramContext): Node[] | undefined =>
         primative.props.children
             ? primative.props.children.map(element => this.renderElement(element, programContext))
             : undefined;
@@ -77,60 +79,60 @@ class Render {
       case 'set-program': {
         const { program } = primative.props;
         const programContext = this.programContextFactory(program);
-        const childFibers = createChildFibers(programContext);
-        return new PrimativeFiber(programContext, primative, childFibers);
+        const childNodes = createChildNodes(programContext);
+        return new PrimativeNode(programContext, primative, childNodes);
       }
 
       default: {
-        const childFibers = createChildFibers(parentProgramContext);
-        return new PrimativeFiber(parentProgramContext, primative, childFibers);
+        const childNodes = createChildNodes(parentProgramContext);
+        return new PrimativeNode(parentProgramContext, primative, childNodes);
       }
     }
   }
 
-  private updateComponent = <T>(componentFiber: ComponentFiber<T>) => {
-    const { component, props, hookState, programContext } = componentFiber;
+  private updateComponent = <T>(componentNode: ComponentNode<T>) => {
+    const { component, props, hookState, programContext } = componentNode;
     const elementOutput = component(props, hookState);
     hookState.onRenderFinish();
 
     // TODO: children update
-    const childFiber = this.renderElement(elementOutput, programContext);
-    const shouldUpdateChlidren = this.didFiberUpdate(childFiber, componentFiber.childFiber);
-    componentFiber.setChildFiber(childFiber);
+    const childNode = this.renderElement(elementOutput, programContext);
+    const shouldUpdateChlidren = this.didNodeUpdate(childNode, componentNode.childNode);
+    componentNode.setChildNode(childNode);
 
     if (shouldUpdateChlidren) {
       // TODO: Add updating children.
     }
   };
 
-  private didFiberUpdate(nextFiber: Fiber, currFiber: Fiber) {
+  private didNodeUpdate(nextNode: Node, currNode: Node) {
     return true;
   }
 
   private paint = () => {
-    this.rootFibers.forEach(fiber => this.paintFiber(fiber));
+    this.rootNodes.forEach(node => this.paintNode(node));
     requestAnimationFrame(this.paint);
   }
 
-  private paintFiber(fiber: Fiber) {
-    if (fiber instanceof ComponentFiber) {
-      this.paintComponent(fiber);
-    } else if (fiber instanceof PrimativeFiber) {
-      this.paintPrimative(fiber);
+  private paintNode(node: Node) {
+    if (node instanceof ComponentNode) {
+      this.paintComponent(node);
+    } else if (node instanceof PrimativeNode) {
+      this.paintPrimative(node);
     } else {
-      throw new Error('unknown fiber');
+      throw new Error('unknown node');
     }
   }
 
-  private paintComponent<T>({ childFiber }: ComponentFiber<T>) {
-    if (childFiber) {
-      this.paintFiber(childFiber);
+  private paintComponent<T>({ childNode }: ComponentNode<T>) {
+    if (childNode) {
+      this.paintNode(childNode);
     }
   }
 
-  private paintPrimative({ childFibers, primative }: PrimativeFiber) {
+  private paintPrimative({ childNodes, primative }: PrimativeNode) {
     const paintChildren = () => {
-      childFibers && childFibers.forEach(f => this.paintFiber(f));
+      childNodes && childNodes.forEach(f => this.paintNode(f));
     };
 
     switch (primative.type) {
@@ -176,7 +178,7 @@ class Render {
 export function renderRoot(
     elements: Element[],
     context: WebGLRenderingContext,
-    onComplete: (fiber: Fiber[]) => void,
+    onComplete: (node: Node[]) => void,
 ) {
   const programContextFactory: ProgramContextFactory = program => new ProgramContext(context, program);
   const requestIdleCallback = (window.requestIdleCallback || window.setTimeout).bind(window);
@@ -185,7 +187,7 @@ export function renderRoot(
       context,
       programContextFactory,
       createHookStateFactory(requestIdleCallback),
-      createComponentScheduleFactory(requestIdleCallback, cancelIdleCallback),
+      createNodeRefreshFactory(requestIdleCallback, cancelIdleCallback),
   );
 
   onComplete(renderer.renderRoot(elements));
