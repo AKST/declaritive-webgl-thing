@@ -17,14 +17,20 @@ export function JitterTranslate(props: JitterTranslateProps, env: Environment) {
   const [xOffset, setXOffset] = env.useState(createOffsetValue(d));
   const [yOffset, setYOffset] = env.useState(createOffsetValue(d));
 
-  // env.useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setXOffset(createOffsetValue(d));
-  //     setYOffset(createOffsetValue(d));
-  //   }, rate);
+  env.useEffect(() => {
+    let localXOffset = xOffset;
+    let localYOffset = yOffset;
 
-  //   return () => clearInterval(interval);
-  // }, [rate]);
+    const interval = setInterval(() => {
+      localXOffset = (createOffsetValue(d) * 0.1) + (0.9 * localXOffset);
+      localYOffset = (createOffsetValue(d) * 0.1) + (0.9 * localYOffset);
+
+      setXOffset(localXOffset);
+      setYOffset(localYOffset);
+    }, rate);
+
+    return () => clearInterval(interval);
+  }, [rate]);
 
   return createElement(Translate, {
     uniformName,
