@@ -6,7 +6,7 @@ import {
   Props,
 } from '/src/renderer/base';
 
-export function propsAreEqual(a: Props, b: Props): boolean {
+function propsAreEqual(a: Props, b: Props): boolean {
   function toEqual(a: any, b: any) {
     if (a == null && b == null) return false;
     if (a == null || b == null) return false;
@@ -16,9 +16,10 @@ export function propsAreEqual(a: Props, b: Props): boolean {
     return a === b;
   }
 
-  for (const k of Object.keys(a)) {
+  for (const k of Object.keys({ ...a, ...b })) {
     if (!toEqual(a[k], b[k])) return false;
   }
+
   return true;
 }
 
@@ -30,6 +31,22 @@ export type Element =
 
 export type Children = readonly Element[];
 
+export class PrimativeElement {
+  constructor(
+      public primative: Primative,
+  ) {
+  }
+
+  propsAreEqual<U extends Props>(_other: U): boolean {
+    return false;
+  }
+
+  primativeIsEqual(other: Primative): boolean {
+    return this.primative.type === other.type
+        && propsAreEqual(this.primative.props, other.props);
+  }
+}
+
 export class ComponentElement<T extends Props> {
   constructor(
       public component: Component<T>,
@@ -37,20 +54,12 @@ export class ComponentElement<T extends Props> {
   ) {
   }
 
-  toEqual<U extends Props>(element: ComponentElement<U>): boolean {
-    return propsAreEqual(this.props, element.props);
-  }
-}
-
-export class PrimativeElement {
-  constructor(
-      public primative: Primative,
-  ) {
+  propsAreEqual<U extends Props>(otherProps: U): boolean {
+    return propsAreEqual(this.props, otherProps);
   }
 
-  toEqual(other: PrimativeElement): boolean {
-    return this.primative.type === other.primative.type
-        && propsAreEqual(this.primative.props, other.primative.props);
+  primativeIsEqual(_primative: Primative) {
+    return false;
   }
 }
 

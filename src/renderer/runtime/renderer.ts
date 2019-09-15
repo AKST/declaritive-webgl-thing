@@ -29,6 +29,10 @@ export class Renderer {
     return this.renderElement(element, outerContext);
   }
 
+  updateComponentEntryPoint = <T>(componentNode: ComponentNode<T>) => {
+    this.updateComponentNode(componentNode, componentNode.props, componentNode.programContext);
+  };
+
   private renderElement(element: Element, programContext: ProgramContext): Node {
     if (element instanceof PrimativeElement) {
       return this.renderPrimative(element.primative, programContext);
@@ -40,7 +44,7 @@ export class Renderer {
   }
 
   private renderComponent<T>(element: ComponentElement<T>, programContext: ProgramContext): Node {
-    const nodeRefresh = this.nodeRefreshFactory<T>(this.updateComponent);
+    const nodeRefresh = this.nodeRefreshFactory<T>(this.updateComponentEntryPoint);
     const hookState = this.hookStateFactory(programContext, nodeRefresh.updateNode);
     const elementOutput = element.component(element.props, hookState);
     const childNode = this.renderElement(elementOutput, programContext);
@@ -77,15 +81,63 @@ export class Renderer {
     }
   }
 
-  private updateComponent = <T>(componentNode: ComponentNode<T>) => {
-    const { component, props, hookState, programContext } = componentNode;
+  private maybeUpdateNode(node: Node, output: Element, context: ProgramContext): Node {
+    if (node.shouldRerender(output)) {
+      return this.renderElement(output, context);
+    }
+    if (node.shouldUpdate(output)) {
+      this.updateNode(node, output, context);
+    }
+    return node;
+  }
+
+  private updateNode(node: Node, output: Element, context: ProgramContext) {
+    if (node instanceof ComponentNode && output instanceof ComponentElement) {
+      this.updateComponentNode(node, output.props, context);
+    } else if (node instanceof PrimativeNode && output instanceof PrimativeElement) {
+      this.updatePrimativeNode(node, output.primative, context);
+    } else {
+      throw new Error('should not occur');
+    }
+  }
+
+  private updateComponentNode<T>(node: ComponentNode<T>, props: T, context: ProgramContext) {
+    const { component, hookState } = node;
     const elementOutput = component(props, hookState);
+    node.setProps(props);
     hookState.onRenderFinish();
 
-    // TODO: children update
-    const childNode = this.renderElement(elementOutput, programContext);
-    componentNode.setChildNode(childNode);
-  };
+    const childNode = this.maybeUpdateNode(node.childNode, elementOutput, context);
+    if (node.childNode !== childNode) {
+      node.setChildNode(childNode);
+    }
+    return node;
+  }
+
+  private updatePrimativeNode(node: PrimativeNode, primative: Primative, context: ProgramContext) {
+    node.setPrimative(primative);
+    const nextProgramContext = primative.type === 'set-program'
+        ? this.programContextFactory(primative.props.program)
+        : context;
+
+    const childElements = primative.props.children || [];
+    const maxChildUpdateIndex = Math.min(node.childNodes.length - childElements.length);
+
+    for (let i = 0; i < maxChildUpdateIndex; i++) {
+      this.updateNode(node.childNodes[i], childElements[i], nextProgramContext);
+    }
+
+    if (node.childNodes.length < childElements.length) {
+      const childrenToAdd = node.childNodes.length - childElements.length;
+      for (const element of childElements.slice(childrenToAdd)) {
+        node.childNodes.push(this.renderElement(element, nextProgramContext));
+      }
+    }
+    else if (node.childNodes.length > childElements.length) {
+      const newArrayLength = childElements.length - node.childNodes.length;
+      node.childNodes = node.childNodes.slice(0, newArrayLength);
+    }
+  }
 }
 
 export function createRenderer(context: WebGLRenderingContext) {
