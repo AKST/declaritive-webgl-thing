@@ -10,7 +10,7 @@ function dependenciesDidChange(left: Dependencies, right: Dependencies): boolean
   return left.some((v, i) => v !== right[i]);
 }
 
-class MemoValue<T> {
+export class MemoValue<T> {
   constructor(public value: T, private dependencies: Dependencies) {
   }
 
@@ -26,7 +26,7 @@ class MemoValue<T> {
   }
 }
 
-class StateNode<T> {
+export class StateNode<T> {
   constructor(
       public value: T,
       private readonly requestUpdate: () => void,
@@ -44,7 +44,7 @@ class StateNode<T> {
 }
 
 
-class EffectNode {
+export class EffectNode {
   private tidyUp?: () => void;
 
   constructor(
