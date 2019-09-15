@@ -31,7 +31,20 @@ export type Element =
 
 export type Children = readonly Element[];
 
-export class PrimativeElement {
+export interface ElementApi {
+  primativeIsEqual(other: Primative): boolean;
+  propsAreEqual<U extends Props>(_other: U): boolean;
+}
+
+export function isComponentElement(element: Element): element is ComponentElement<any> {
+  return element instanceof ComponentElement;
+}
+
+export function isPrimativeElement(element: Element): element is PrimativeElement {
+  return element instanceof PrimativeElement;
+}
+
+export class PrimativeElement implements ElementApi {
   constructor(
       public primative: Primative,
   ) {
@@ -47,7 +60,7 @@ export class PrimativeElement {
   }
 }
 
-export class ComponentElement<T extends Props> {
+export class ComponentElement<T extends Props> implements ElementApi {
   constructor(
       public component: Component<T>,
       public props: T,

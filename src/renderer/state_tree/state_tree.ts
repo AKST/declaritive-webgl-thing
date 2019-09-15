@@ -10,6 +10,14 @@ export interface NodeApi {
   shouldUpdate(element: Element): boolean;
 }
 
+export function isComponentNode(element: Node): element is ComponentNode<any> {
+  return element instanceof ComponentNode;
+}
+
+export function isPrimativeNode(element: Node): element is PrimativeNode {
+  return element instanceof PrimativeNode;
+}
+
 export class PrimativeNode implements NodeApi {
   constructor(
       public primative: Primative,

@@ -4,6 +4,8 @@ import {
   Primative,
   ComponentElement,
   PrimativeElement,
+  isComponentElement,
+  isPrimativeElement,
 } from '/src/renderer/element/element';
 import { createHookStateFactory, HookStateFactory } from '/src/renderer/hook_state/hook_state';
 import {
@@ -12,7 +14,13 @@ import {
   ProgramContextFactory,
 } from '/src/renderer/program_context/program_context';
 import { createNodeRefreshFactory, NodeRefreshFactory } from '/src/renderer/state_tree/node_refresh';
-import { Node, PrimativeNode, ComponentNode } from '/src/renderer/state_tree/state_tree';
+import {
+  Node,
+  PrimativeNode,
+  ComponentNode,
+  isComponentNode,
+  isPrimativeNode,
+} from '/src/renderer/state_tree/state_tree';
 
 export type ProgramContextFactory = (program?: WebGLProgram) => ProgramContext;
 
@@ -81,24 +89,21 @@ export class Renderer {
     }
   }
 
-  private maybeUpdateNode(node: Node, output: Element, context: ProgramContext): Node {
+  private updateOrReplaceNode(node: Node, output: Element, context: ProgramContext): Node {
     if (node.shouldRerender(output)) {
       return this.renderElement(output, context);
     }
     if (node.shouldUpdate(output)) {
-      this.updateNode(node, output, context);
+      if (isComponentNode(node) && isComponentElement(output)) {
+        this.updateComponentNode(node, output.props, context);
+      } else if (isPrimativeNode(node) && isPrimativeElement(output)) {
+        this.updatePrimativeNode(node, output.primative, context);
+      } else {
+        // this should have been picked up in the first guard conditional.
+        throw new Error('should not occur');
+      }
     }
     return node;
-  }
-
-  private updateNode(node: Node, output: Element, context: ProgramContext) {
-    if (node instanceof ComponentNode && output instanceof ComponentElement) {
-      this.updateComponentNode(node, output.props, context);
-    } else if (node instanceof PrimativeNode && output instanceof PrimativeElement) {
-      this.updatePrimativeNode(node, output.primative, context);
-    } else {
-      throw new Error('should not occur');
-    }
   }
 
   private updateComponentNode<T>(node: ComponentNode<T>, props: T, context: ProgramContext) {
@@ -107,7 +112,7 @@ export class Renderer {
     node.setProps(props);
     hookState.onRenderFinish();
 
-    const childNode = this.maybeUpdateNode(node.childNode, elementOutput, context);
+    const childNode = this.updateOrReplaceNode(node.childNode, elementOutput, context);
     if (node.childNode !== childNode) {
       node.setChildNode(childNode);
     }
@@ -124,7 +129,11 @@ export class Renderer {
     const maxChildUpdateIndex = Math.min(node.childNodes.length - childElements.length);
 
     for (let i = 0; i < maxChildUpdateIndex; i++) {
-      this.updateNode(node.childNodes[i], childElements[i], nextProgramContext);
+      node.childNodes[i] = this.updateOrReplaceNode(
+          node.childNodes[i],
+          childElements[i],
+          nextProgramContext,
+      );
     }
 
     if (node.childNodes.length < childElements.length) {
