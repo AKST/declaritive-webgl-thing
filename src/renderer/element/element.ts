@@ -1,8 +1,15 @@
 import {
   AttributeLocation,
+  Component,
+  ComponentElementApi,
   BufferInfo,
   Environment,
+  Element,
   UniformLocation,
+  Primative,
+  PrimativeKind,
+  PrimativePropMap,
+  PrimativeElementApi,
   Props,
 } from '/src/renderer/base';
 
@@ -23,18 +30,10 @@ function propsAreEqual(a: Props, b: Props): boolean {
   return true;
 }
 
-export type Component<T> = (props: T, environment: Environment) => Element;
 
-export type Element =
-    | PrimativeElement
-    | ComponentElement<any>;
+export { Component, Element }
 
 export type Children = readonly Element[];
-
-export interface ElementApi {
-  primativeIsEqual(other: Primative): boolean;
-  propsAreEqual<U extends Props>(_other: U): boolean;
-}
 
 export function isComponentElement(element: Element): element is ComponentElement<any> {
   return element instanceof ComponentElement;
@@ -44,7 +43,7 @@ export function isPrimativeElement(element: Element): element is PrimativeElemen
   return element instanceof PrimativeElement;
 }
 
-export class PrimativeElement implements ElementApi {
+export class PrimativeElement implements PrimativeElementApi {
   constructor(
       public primative: Primative,
   ) {
@@ -60,7 +59,7 @@ export class PrimativeElement implements ElementApi {
   }
 }
 
-export class ComponentElement<T extends Props> implements ElementApi {
+export class ComponentElement<T extends Props> implements ComponentElementApi<T> {
   constructor(
       public component: Component<T>,
       public props: T,
@@ -75,37 +74,6 @@ export class ComponentElement<T extends Props> implements ElementApi {
     return false;
   }
 }
-
-type PrimativeKind = 'fragment' | 'set-program' | 'set-uniform' | 'set-attribute-data';
-
-type PrimativePropMap = {
-  'fragment': {
-    children?: Children;
-  };
-  'set-program': {
-    program: WebGLProgram;
-    children?: Children;
-  };
-  'set-attribute-data': {
-    attribute: AttributeLocation;
-    buffer: BufferInfo;
-    drawKind: number;
-    children?: Children;
-  };
-  'set-uniform': {
-    uniform: UniformLocation;
-    value: number[];
-    children?: Children;
-  };
-};
-
-type AbstractPrimative<T extends PrimativeKind> = { type: T, props: PrimativePropMap[T] };
-
-export type Primative =
-  | AbstractPrimative<'fragment'>
-  | AbstractPrimative<'set-attribute-data'>
-  | AbstractPrimative<'set-program'>
-  | AbstractPrimative<'set-uniform'>;
 
 export function createElement<T, K extends PrimativeKind>(element: Component<T>, props: T): Element;
 export function createElement<T, K extends PrimativeKind>(element: K, props: PrimativePropMap[K]): Element;
