@@ -52,4 +52,5 @@ export {
   useAttribute,
   useBuffer,
   useUniform,
+  WebGLRenderingContextContext,
 }
