@@ -1,4 +1,4 @@
-import { Element, createElement } from '/src/renderer/element/element';
+import { createElement } from '/src/renderer/element/element';
 import {
   ComponentNode,
   PrimativeNode,
@@ -36,6 +36,7 @@ describe('Renderer', () => {
       const output = runtime.createStateTree(createElement(Component, { a: 1 }));
       const childNode = new ComponentNode(
           mocks.programContext,
+          undefined,
           mocks.hookState,
           ChildComponent,
           { name: 'child', a: 2 },
@@ -46,6 +47,7 @@ describe('Renderer', () => {
       );
       const topLevelNode = new ComponentNode(
           mocks.programContext,
+          undefined,
           mocks.hookState,
           Component,
           { a: 1 },
@@ -70,11 +72,13 @@ describe('Renderer', () => {
 
       const topLevelNode = new ComponentNode(
           mocks.programContext,
+          undefined,
           mocks.hookState,
           Parent,
           { a: 1 },
           new ComponentNode(
               mocks.programContext,
+              undefined,
               mocks.hookState,
               Child,
               { name: 'child', a: 2 },
@@ -100,11 +104,13 @@ describe('Renderer', () => {
       expect(topLevelNode).toEqual(
           new ComponentNode(
               mocks.programContext,
+              undefined,
               mocks.hookState,
               Parent,
               { a: 1 },
               new ComponentNode(
                   mocks.programContext,
+                  undefined,
                   mocks.hookState,
                   Child,
                   { name: 'child', a: 3 },
@@ -124,6 +130,7 @@ describe('Renderer', () => {
 
       const topLevelNode = new ComponentNode(
           mocks.programContext,
+          undefined,
           mocks.hookState,
           Parent,
           { a: 1 },
@@ -144,6 +151,7 @@ describe('Renderer', () => {
       expect(topLevelNode).toEqual(
           new ComponentNode(
               mocks.programContext,
+              undefined,
               mocks.hookState,
               Parent,
               { a: 1 },

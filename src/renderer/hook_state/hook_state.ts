@@ -1,4 +1,9 @@
-import { Dependencies, Environment, RunEffect } from '/src/renderer/base';
+import {
+  Context,
+  Dependencies,
+  Environment,
+  RunEffect,
+} from '/src/renderer/base';
 import { ProgramContext } from '/src/renderer/program_context/program_context';
 
 type QueueEffect = (callback: () => void) => void;
@@ -43,12 +48,11 @@ export class StateNode<T> {
   }
 }
 
-
 export class EffectNode {
   private tidyUp?: () => void;
 
   constructor(
-      private readonly queueEffect: QueueEffect,
+      private readonly requestIdleCallback: QueueEffect,
       private dependencies: Dependencies,
   ) {
     this.tidyUp = undefined;
@@ -56,7 +60,7 @@ export class EffectNode {
 
   syncEffect(runEffect: RunEffect, dependencies: Dependencies) {
     if (dependenciesDidChange(this.dependencies, dependencies)) {
-      this.queueEffect(() => {
+      this.requestIdleCallback(() => {
         if (this.tidyUp) this.tidyUp();
         this.tidyUp = runEffect();
       });
@@ -64,9 +68,9 @@ export class EffectNode {
     }
   }
 
-  static create(queueEffect: QueueEffect, runEffect: RunEffect, dependencies: Dependencies) {
-    const instance = new EffectNode(queueEffect, dependencies);
-    queueEffect(() => instance.tidyUp = runEffect());
+  static create(requestIdleCallback: QueueEffect, runEffect: RunEffect, dependencies: Dependencies) {
+    const instance = new EffectNode(requestIdleCallback, dependencies);
+    requestIdleCallback(() => instance.tidyUp = runEffect());
     return instance;
   }
 }
@@ -105,6 +109,10 @@ export class HookState implements Environment {
       const buffer = this.programContext.createBuffer()
       return { buffer, kind, data };
     }, [data, kind]);
+  }
+
+  useContext<T, B = undefined>(context: Context<T>, fallbackValue?: B): T | B {
+    throw new Error('not implemented');
   }
 
   useEffect(runEffect: RunEffect, dependencies: Dependencies) {

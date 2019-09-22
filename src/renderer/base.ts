@@ -88,4 +88,3 @@ export interface Environment {
   useEffect(runEffect: RunEffect, dependencies: Dependencies): void;
   useLayoutEffect(runEffect: RunEffect, dependencies: Dependencies): void;
 }
-

@@ -1,11 +1,7 @@
 import {
-  AttributeLocation,
   Component,
   ComponentElementApi,
-  BufferInfo,
-  Environment,
   Element,
-  UniformLocation,
   Primative,
   PrimativeKind,
   PrimativePropMap,
@@ -29,9 +25,6 @@ function propsAreEqual(a: Props, b: Props): boolean {
 
   return true;
 }
-
-
-export { Component, Element }
 
 export type Children = readonly Element[];
 
