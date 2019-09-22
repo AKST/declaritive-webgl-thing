@@ -80,11 +80,12 @@ export type Context<T> = {
   Provider: Component<{ children: readonly Element[], value: T }>;
 };
 
+
+// TODO
+// - label useEffect as asyncronous effect
+// - label useLayoutEffect as syncronous effect
 export interface Environment {
-  useBuffer(array: Float32Array, drawKind: number): any;
-  useAttribute(name: string, size: number): AttributeLocation;
   useContext<A, B>(context: Context<A>, fallbackValue: B): A | B;
-  useUniform(name: string, size: string): UniformLocation;
   useState<T>(value: T): [T, (value: T) => void];
   useMemo<T>(createValue: () => T, dependencies: Dependencies): T;
   useEffect(runEffect: RunEffect, dependencies: Dependencies): void;

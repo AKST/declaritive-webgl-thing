@@ -1,5 +1,10 @@
-import { Environment } from '/src/renderer/base';
-import { createElement, Children } from '/src/renderer/element/element';
+import {
+  Children,
+  createElement,
+  Environment,
+  useAttribute,
+  useBuffer,
+} from '/src/renderer/index';
 import { Translate, JitterTranslate } from '/src/ui/translate';
 import { AnimateRotation } from '/src/ui/rotate';
 
@@ -25,15 +30,16 @@ type SquareProps = {
 
 const Square = (props: SquareProps, env: Environment) => {
   const { xOffset, yOffset, attributeName, size } = props;
+
   const data = env.useMemo(() => (
       new Float32Array(squarePoints(xOffset, yOffset, size, size))
   ), [xOffset, yOffset, size]);
 
-  const buffer = env.useBuffer(data, WebGLRenderingContext.STATIC_DRAW);
-  const drawKind = WebGLRenderingContext.TRIANGLES;
-  const attribute = env.useAttribute(attributeName, 2);
-
-  return createElement('set-attribute-data', { attribute, buffer, drawKind });
+  return createElement('set-attribute-data', {
+    attribute: useAttribute(env, attributeName, 2),
+    buffer: useBuffer(env, data, WebGLRenderingContext.STATIC_DRAW),
+    drawKind: WebGLRenderingContext.TRIANGLES,
+  });
 };
 
 type MainProps = {
@@ -42,7 +48,7 @@ type MainProps = {
   translateUniformName: string;
 };
 
-export function Main(props: MainProps, env: Environment) {
+export function Main(props: MainProps) {
   const {
     positionAttributeName: attributeName,
     rotationUniformName,

@@ -1,5 +1,9 @@
-import { Environment } from '/src/renderer/base';
-import { createElement, Children } from '/src/renderer/element/element';
+import {
+  Children,
+  createElement,
+  Environment,
+  useUniform,
+} from '/src/renderer/index';
 
 type AnimateRotationProps = {
   period: number;
@@ -40,7 +44,7 @@ export function Rotation(props: RotationProps, env: Environment) {
   const { angle, children, uniformName } = props;
   const radians = angle * Math.PI / 180;
   return createElement('set-uniform', {
-    uniform: env.useUniform(uniformName, '2f'),
+    uniform: useUniform(env, uniformName, '2f'),
     value: [Math.sin(radians), Math.cos(radians)],
     children,
   });

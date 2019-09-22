@@ -123,27 +123,6 @@ export class HookState implements Environment {
   ) {
   }
 
-  useAttribute(name: string, size: number) {
-    return this.useMemo(() => {
-      const location = this.programContext.getAttributeLocation(name);
-      return { location, size };
-    }, [name, size]);
-  }
-
-  useUniform(name: string, type: string) {
-    return this.useMemo(() => {
-      const location = this.programContext.getUniformLocation(name);
-      return { location, type };
-    }, [name, type]);
-  }
-
-  useBuffer(data: Float32Array, kind: number) {
-    return this.useMemo(() => {
-      const buffer = this.programContext.createBuffer()
-      return { buffer, kind, data };
-    }, [data, kind]);
-  }
-
   useContext<A, B>(context: Context<A>, fallbackValue: B): A | B {
     if (this.initialRender) {
       const contextNode = new ContextNode(this.contextTreeNode, this.requestUpdate);

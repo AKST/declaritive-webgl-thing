@@ -1,4 +1,4 @@
-import { Element } from '/src/renderer/base';
+import { Children, Element, Environment } from '/src/renderer/base';
 import { createElement } from '/src/renderer/element/element';
 import {
   AttributeMemoMapContext,
@@ -6,6 +6,11 @@ import {
   UniformMemoMapContext,
   WebGLRenderingContextContext,
 } from '/src/renderer/core/core_contexts';
+import {
+  useAttribute,
+  useBuffer,
+  useUniform,
+} from '/src/renderer/core/core_hooks';
 import { Node } from '/src/renderer/state_tree/state_tree';
 import { Painter } from '/src/renderer/runtime/painter';
 import { createRenderer } from '/src/renderer/runtime/renderer';
@@ -20,7 +25,7 @@ export function render(
 
   onComplete(
       runtime.renderRoot([
-        createElement(AttributeMemoMapContext.Provider, {
+        createElement(UniformMemoMapContext.Provider, {
           value: new Map(),
           children: [
             createElement(AttributeMemoMapContext.Provider, {
@@ -38,4 +43,13 @@ export function render(
   );
 }
 
-export { ProgramContext }
+export {
+  createElement,
+  Children,
+  Element,
+  Environment,
+  ProgramContext,
+  useAttribute,
+  useBuffer,
+  useUniform,
+}
