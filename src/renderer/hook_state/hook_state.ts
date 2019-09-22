@@ -10,7 +10,7 @@ function dependenciesDidChange(left: Dependencies, right: Dependencies): boolean
   return left.some((v, i) => v !== right[i]);
 }
 
-export class MemoValue<T> {
+export class MemoNode<T> {
   constructor(public value: T, private dependencies: Dependencies) {
   }
 
@@ -21,8 +21,8 @@ export class MemoValue<T> {
     }
   }
 
-  static create<T>(createValue: () => T, dependencies: Dependencies): MemoValue<T> {
-    return new MemoValue(createValue(), dependencies);
+  static create<T>(createValue: () => T, dependencies: Dependencies): MemoNode<T> {
+    return new MemoNode(createValue(), dependencies);
   }
 }
 
@@ -71,7 +71,7 @@ export class EffectNode {
   }
 }
 
-type HookNode = MemoValue<unknown> | StateNode<unknown> | EffectNode;
+type HookNode = MemoNode<unknown> | StateNode<unknown> | EffectNode;
 
 export class HookState implements Environment {
   private hooks: HookNode[] = [];
@@ -155,13 +155,13 @@ export class HookState implements Environment {
 
   useMemo<T>(createValue: () => T, dependencies: Dependencies): T {
     if (this.initialRender) {
-      const memoValue = MemoValue.create(createValue, dependencies);
+      const memoValue = MemoNode.create(createValue, dependencies);
       this.hooks.push(memoValue);
       return memoValue.value;
     } else {
-      const memoValue = this.getNextHook() as MemoValue<T>;
+      const memoValue = this.getNextHook() as MemoNode<T>;
 
-      if (!(memoValue instanceof MemoValue)) {
+      if (!(memoValue instanceof MemoNode)) {
         throw new Error('hook order out of sync');
       }
 

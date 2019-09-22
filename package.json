@@ -1,11 +1,13 @@
 {
   "scripts": {
     "start": "parcel index.html",
-    "type": "tsc --noEmit",
-    "test": "jest"
+    "type": "./node_modules/.bin/tsc --noEmit",
+    "test": "./node_modules/.bin/jest",
+    "test:watch": "./node_modules/.bin/jest --watch"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "jest": "^24.9.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.6.2"
   },
