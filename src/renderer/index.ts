@@ -21,7 +21,7 @@ export function render(
     context: WebGLRenderingContext,
     onComplete: (node: Node[]) => void,
 ) {
-  const runtime = createRuntime(new Painter(context), createRenderer(context));
+  const runtime = createRuntime(new Painter(context), createRenderer());
 
   onComplete(
       runtime.renderRoot([

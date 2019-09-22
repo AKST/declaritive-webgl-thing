@@ -1,3 +1,4 @@
+import { ProgramContext } from '/src/renderer/core/core_contexts';
 import { Node, ComponentNode, PrimativeNode } from '/src/renderer/state_tree/state_tree';
 
 export class Painter {
@@ -30,16 +31,24 @@ export class Painter {
     };
 
     switch (primative.type) {
-      case 'set-context':
-      case 'fragment':
-        paintChildren();
-        break;
+      case 'set-context': {
+        // Currently there's only one blessed context, but
+        // maybe it'll make sense for some more contexts 🤔
+        switch (primative.props.key) {
+          case ProgramContext.key:
+            this.context.useProgram(primative.props.value);
 
-      case 'set-program': {
-        this.context.useProgram(primative.props.program);
+          default:
+            break;
+        }
+
         paintChildren();
         break;
       }
+
+      case 'fragment':
+        paintChildren();
+        break;
 
       case 'set-uniform': {
         const { uniform: { location, type }, value } = primative.props;

@@ -22,7 +22,7 @@ describe('Renderer', () => {
               { type: 'set-attribute-data', props: primativeProps },
               undefined,
           ),
-      )
+      );
     });
 
     it('rendering a component element with a child component', () => {
@@ -35,7 +35,6 @@ describe('Renderer', () => {
 
       const output = runtime.createStateTree(createElement(Component, { a: 1 }));
       const childNode = new ComponentNode(
-          mocks.programContext,
           undefined,
           mocks.hookState,
           ChildComponent,
@@ -46,7 +45,6 @@ describe('Renderer', () => {
           ),
       );
       const topLevelNode = new ComponentNode(
-          mocks.programContext,
           undefined,
           mocks.hookState,
           Component,
@@ -56,7 +54,6 @@ describe('Renderer', () => {
 
       expect(mocks.nodeRefresh.setNode).toHaveBeenNthCalledWith(1, childNode);
       expect(mocks.nodeRefresh.setNode).toHaveBeenNthCalledWith(2, topLevelNode);
-      expect(mocks.programContextFactory).toBeCalled();
       expect(mocks.hookStateFactory).toBeCalled();
 
       expect(output).toEqual(topLevelNode);
@@ -71,13 +68,11 @@ describe('Renderer', () => {
       const Child = jest.fn();
 
       const topLevelNode = new ComponentNode(
-          mocks.programContext,
           undefined,
           mocks.hookState,
           Parent,
           { a: 1 },
           new ComponentNode(
-              mocks.programContext,
               undefined,
               mocks.hookState,
               Child,
@@ -97,19 +92,16 @@ describe('Renderer', () => {
 
       runtime.updateComponentEntryPoint(topLevelNode);
 
-      expect(mocks.programContextFactory).not.toBeCalled();
       expect(mocks.hookStateFactory).not.toBeCalled();
       expect(mocks.nodeRefresh.setNode).not.toBeCalled();
 
       expect(topLevelNode).toEqual(
           new ComponentNode(
-              mocks.programContext,
               undefined,
               mocks.hookState,
               Parent,
               { a: 1 },
               new ComponentNode(
-                  mocks.programContext,
                   undefined,
                   mocks.hookState,
                   Child,
@@ -129,7 +121,6 @@ describe('Renderer', () => {
       const Parent = jest.fn();
 
       const topLevelNode = new ComponentNode(
-          mocks.programContext,
           undefined,
           mocks.hookState,
           Parent,
@@ -144,13 +135,11 @@ describe('Renderer', () => {
 
       runtime.updateComponentEntryPoint(topLevelNode);
 
-      expect(mocks.programContextFactory).not.toBeCalled();
       expect(mocks.hookStateFactory).not.toBeCalled();
       expect(mocks.nodeRefresh.setNode).not.toBeCalled();
 
       expect(topLevelNode).toEqual(
           new ComponentNode(
-              mocks.programContext,
               undefined,
               mocks.hookState,
               Parent,

@@ -5,7 +5,6 @@ import {
   RunEffect,
 } from '/src/renderer/base';
 import { ContextTreeNode } from '/src/renderer/context/context';
-import { ProgramContext } from '/src/renderer/program_context/program_context';
 
 type QueueEffect = (callback: () => void) => void;
 
@@ -115,7 +114,6 @@ export class HookState implements Environment {
   private initialRender: boolean = true;
 
   constructor(
-      private programContext: ProgramContext,
       private contextTreeNode: ContextTreeNode | undefined,
       private requestUpdate: () => void,
       private effectNodeFactory: (runEffect: RunEffect, dependencies: Dependencies) => EffectNode,
@@ -213,7 +211,6 @@ export class HookState implements Environment {
 }
 
 export type HookStateFactory = (
-    programContext: ProgramContext,
     contextTreeNode: ContextTreeNode | undefined,
     scheduleUpdate: () => void,
 ) => HookState;
@@ -229,9 +226,8 @@ export function createHookStateFactory(
     }
   };
 
-  return (programContext, contextTreeNode, componentSchedule) => (
+  return (contextTreeNode, componentSchedule) => (
       new HookState(
-          programContext,
           contextTreeNode,
           componentSchedule,
           (runEffect, dependencies) => (

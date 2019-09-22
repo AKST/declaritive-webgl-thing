@@ -46,16 +46,11 @@ document.addEventListener('DOMContentLoaded', function () {
     createElement(ProgramContext.Provider, {
       value: program,
       children: [
-        createElement('set-program', {
-          program,
-          children: [
-            createElement(Main, {
-              positionAttributeName: 'a_position',
-              translateUniformName: 'u_translate',
-              rotationUniformName: 'u_rotation',
-            })
-          ],
-        }),
+        createElement(Main, {
+          positionAttributeName: 'a_position',
+          translateUniformName: 'u_translate',
+          rotationUniformName: 'u_rotation',
+        })
       ],
     }),
   ], context, function onComplete(nodes: readonly Node[]) {

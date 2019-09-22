@@ -35,17 +35,12 @@ export interface ComponentElementApi<T extends Props> extends ElementApi {
 
 export type PrimativeKind =
   | 'fragment'
-  | 'set-program'
   | 'set-uniform'
   | 'set-context'
   | 'set-attribute-data';
 
 export type PrimativePropMap = {
   'fragment': {
-    children?: Children;
-  };
-  'set-program': {
-    program: WebGLProgram;
     children?: Children;
   };
   'set-attribute-data': {
@@ -71,7 +66,6 @@ type AbstractPrimative<T extends PrimativeKind> = { type: T, props: PrimativePro
 export type Primative =
   | AbstractPrimative<'fragment'>
   | AbstractPrimative<'set-attribute-data'>
-  | AbstractPrimative<'set-program'>
   | AbstractPrimative<'set-context'>
   | AbstractPrimative<'set-uniform'>;
 
