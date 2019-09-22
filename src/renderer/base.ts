@@ -6,8 +6,10 @@ export type Dependencies = any[]
 
 export type BufferInfo = { buffer: WebGLBuffer, data: Float32Array, kind: number };
 
+// TODO, rename to AttributeInfo
 export type AttributeLocation = { location: number, size: number };
 
+// TODO, rename to UniformInfo
 export type UniformLocation = { location: WebGLUniformLocation, type: string };
 
 export type Component<T> = (props: T, environment: Environment) => Element;
@@ -75,13 +77,13 @@ export type Primative =
 
 export type Context<T> = {
   key: number,
-  Producer: Component<{ children: readonly Element[], value: T }>;
+  Provider: Component<{ children: readonly Element[], value: T }>;
 };
 
 export interface Environment {
   useBuffer(array: Float32Array, drawKind: number): any;
   useAttribute(name: string, size: number): AttributeLocation;
-  useContext<T>(context: Context<T>): T;
+  useContext<A, B>(context: Context<A>, fallbackValue: B): A | B;
   useUniform(name: string, size: string): UniformLocation;
   useState<T>(value: T): [T, (value: T) => void];
   useMemo<T>(createValue: () => T, dependencies: Dependencies): T;

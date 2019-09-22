@@ -1,6 +1,6 @@
-import { Element, Primative, Props } from '/src/renderer/base';
-import { ContextNode } from '/src/renderer/context/context';
-import { Component, ComponentElement, PrimativeElement } from '/src/renderer/element/element';
+import { Component, Element, Primative, Props } from '/src/renderer/base';
+import { ContextTreeNode } from '/src/renderer/context/context';
+import { ComponentElement, PrimativeElement } from '/src/renderer/element/element';
 import { ProgramContext } from '/src/renderer/program_context/program_context';
 import { HookState } from '/src/renderer/hook_state/hook_state';
 
@@ -43,7 +43,7 @@ export class PrimativeNode implements NodeApi {
 export class ComponentNode<T extends Props> implements NodeApi  {
   constructor(
       public programContext: ProgramContext,
-      public contextNode: ContextNode | undefined,
+      public contextNode: ContextTreeNode | undefined,
       public hookState: HookState,
       public component: Component<T>,
       public props: T,

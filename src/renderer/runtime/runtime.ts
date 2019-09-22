@@ -1,4 +1,4 @@
-import { Element } from '/src/renderer/element/element';
+import { Element } from '/src/renderer/base';
 import { Node } from '/src/renderer/state_tree/state_tree';
 import { Painter } from './painter';
 import { Renderer } from './renderer';

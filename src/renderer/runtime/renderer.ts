@@ -1,5 +1,5 @@
 import { createRequestIdleCallback } from '/src/util/browser/request_idle_callback';
-import { ContextNode } from '/src/renderer/context/context';
+import { ContextTreeNode } from '/src/renderer/context/context';
 import { Element, Primative } from '/src/renderer/base';
 import {
   ComponentElement,
@@ -49,7 +49,7 @@ export class Renderer {
   private renderElement(
       element: Element,
       programContext: ProgramContext,
-      contextNode: ContextNode | undefined,
+      contextNode: ContextTreeNode | undefined,
   ): Node {
     if (element instanceof PrimativeElement) {
       return this.renderPrimative(element.primative, programContext, contextNode);
@@ -63,10 +63,10 @@ export class Renderer {
   private renderComponent<T>(
       element: ComponentElement<T>,
       programContext: ProgramContext,
-      contextNode: ContextNode | undefined,
+      contextNode: ContextTreeNode | undefined,
   ): Node {
     const nodeRefresh = this.nodeRefreshFactory<T>(this.updateComponentEntryPoint);
-    const hookState = this.hookStateFactory(programContext, nodeRefresh.updateNode);
+    const hookState = this.hookStateFactory(programContext, contextNode, nodeRefresh.updateNode);
     const elementOutput = element.component(element.props, hookState);
     const childNode = this.renderElement(elementOutput, programContext, contextNode);
     const componentNode = new ComponentNode<T>(
@@ -85,11 +85,11 @@ export class Renderer {
   private renderPrimative(
       primative: Primative,
       parentProgramContext: ProgramContext,
-      parentContextNode: ContextNode | undefined,
+      parentContextTreeNode: ContextTreeNode | undefined,
   ): Node {
     const createChildNodes = (
         programContext: ProgramContext,
-        contextNode: ContextNode | undefined,
+        contextNode: ContextTreeNode | undefined,
     ): Node[] | undefined => {
       if (primative.props.children) {
         return primative.props.children.map((element: Element) => (
@@ -102,7 +102,7 @@ export class Renderer {
     switch (primative.type) {
       case 'set-context': {
         const { key, value } = primative.props;
-        const contextNode = new ContextNode(parentContextNode, key,  value);
+        const contextNode = new ContextTreeNode(parentContextTreeNode, key,  value);
         const childNodes = createChildNodes(parentProgramContext, contextNode);
         return new PrimativeNode(primative, childNodes);
       }
@@ -110,12 +110,12 @@ export class Renderer {
       case 'set-program': {
         const { program } = primative.props;
         const programContext = this.programContextFactory(program);
-        const childNodes = createChildNodes(programContext, parentContextNode);
+        const childNodes = createChildNodes(programContext, parentContextTreeNode);
         return new PrimativeNode(primative, childNodes);
       }
 
       default: {
-        const childNodes = createChildNodes(parentProgramContext, parentContextNode);
+        const childNodes = createChildNodes(parentProgramContext, parentContextTreeNode);
         return new PrimativeNode(primative, childNodes);
       }
     }
@@ -125,7 +125,7 @@ export class Renderer {
       node: Node,
       output: Element,
       programContext: ProgramContext,
-      contextNode: ContextNode | undefined,
+      contextNode: ContextTreeNode | undefined,
   ): Node {
     if (node.shouldRerender(output)) {
       return this.renderElement(output, programContext, contextNode);
@@ -147,7 +147,7 @@ export class Renderer {
       node: ComponentNode<T>,
       props: T,
       programContext: ProgramContext,
-      contextNode: ContextNode | undefined,
+      contextNode: ContextTreeNode | undefined,
   ) {
     const { component, hookState } = node;
     const elementOutput = component(props, hookState);
@@ -172,7 +172,7 @@ export class Renderer {
       node: PrimativeNode,
       primative: Primative,
       programContext: ProgramContext,
-      contextNode: ContextNode | undefined,
+      contextNode: ContextTreeNode | undefined,
   ) {
     node.setPrimative(primative);
     const nextProgramContext = primative.type === 'set-program'

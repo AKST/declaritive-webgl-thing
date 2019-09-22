@@ -2,7 +2,7 @@ import { checkExists } from '/src/util/types';
 import { createProgram } from '/src/util/webgl/create';
 import { createElement } from '/src/renderer/element/element';
 import { Node } from '/src/renderer/state_tree/state_tree';
-import { render } from '/src/renderer/index';
+import { render, ProgramContext } from '/src/renderer/index';
 import { Main } from '/src/ui/main.ts';
 
 const fragmentSource = `
@@ -43,14 +43,19 @@ document.addEventListener('DOMContentLoaded', function () {
   const program = createProgram(context, vertexSource, fragmentSource);
 
   render([
-    createElement('set-program', {
-      program,
+    createElement(ProgramContext.Provider, {
+      value: program,
       children: [
-        createElement(Main, {
-          positionAttributeName: 'a_position',
-          translateUniformName: 'u_translate',
-          rotationUniformName: 'u_rotation',
-        })
+        createElement('set-program', {
+          program,
+          children: [
+            createElement(Main, {
+              positionAttributeName: 'a_position',
+              translateUniformName: 'u_translate',
+              rotationUniformName: 'u_rotation',
+            })
+          ],
+        }),
       ],
     }),
   ], context, function onComplete(nodes: readonly Node[]) {

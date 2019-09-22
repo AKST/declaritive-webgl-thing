@@ -9,28 +9,30 @@ export function createContextFactory() {
 
     return {
       key,
-      Producer: ({ children, value }): Element => (
+      Provider: ({ children, value }): Element => (
           createElement('set-context', { key, value, children })
       ),
     };
   };
 }
 
+export const createContext = createContextFactory();
+
 export type ContextObserver = {
   onContextChange(): void;
 };
 
-export class ContextNode {
+export class ContextTreeNode {
   private lastListener = 1;
   private readonly subscribers: Map<number, ContextObserver> = new Map();
 
   constructor(
-      private parent: ContextNode | undefined,
+      private parent: ContextTreeNode | undefined,
       private key: number,
       private value: any,
   ) {}
 
-  getContextOf(key: number): ContextNode | undefined {
+  getContextOf(key: number): ContextTreeNode | undefined {
     if (this.key === key) {
       return this;
     } else if (this.parent) {

@@ -30,6 +30,7 @@ export class Painter {
     };
 
     switch (primative.type) {
+      case 'set-context':
       case 'fragment':
         paintChildren();
         break;

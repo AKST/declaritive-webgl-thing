@@ -4,6 +4,7 @@ import {
   Environment,
   RunEffect,
 } from '/src/renderer/base';
+import { ContextTreeNode } from '/src/renderer/context/context';
 import { ProgramContext } from '/src/renderer/program_context/program_context';
 
 type QueueEffect = (callback: () => void) => void;
@@ -75,7 +76,38 @@ export class EffectNode {
   }
 }
 
-type HookNode = MemoNode<unknown> | StateNode<unknown> | EffectNode;
+export class ContextNode {
+  private unsubscribe?: () => void;
+  private currentContext?: Context<any>;
+
+  constructor(
+      private contextTreeNode: ContextTreeNode | undefined,
+      private requestUpdate: () => void,
+  ) {
+  }
+
+  getValueFor<T, B>(context: Context<T>, fallbackValue: B): T | B {
+    if (this.contextTreeNode) {
+      const contextNode = this.contextTreeNode.getContextOf(context.key);
+      if (contextNode == null) return fallbackValue;
+
+      if (this.currentContext !== context) {
+        if (this.unsubscribe) this.unsubscribe();
+        this.unsubscribe = contextNode.subscribe(this.requestUpdate)
+      }
+
+      return contextNode.getValue();
+    } else {
+      return fallbackValue;
+    }
+  }
+}
+
+type HookNode =
+    | MemoNode<unknown>
+    | StateNode<unknown>
+    | EffectNode
+    | ContextNode;
 
 export class HookState implements Environment {
   private hooks: HookNode[] = [];
@@ -84,6 +116,7 @@ export class HookState implements Environment {
 
   constructor(
       private programContext: ProgramContext,
+      private contextTreeNode: ContextTreeNode | undefined,
       private requestUpdate: () => void,
       private effectNodeFactory: (runEffect: RunEffect, dependencies: Dependencies) => EffectNode,
       private layoutEffectNodeFactory: (runEffect: RunEffect, dependencies: Dependencies) => EffectNode,
@@ -111,8 +144,20 @@ export class HookState implements Environment {
     }, [data, kind]);
   }
 
-  useContext<T, B = undefined>(context: Context<T>, fallbackValue?: B): T | B {
-    throw new Error('not implemented');
+  useContext<A, B>(context: Context<A>, fallbackValue: B): A | B {
+    if (this.initialRender) {
+      const contextNode = new ContextNode(this.contextTreeNode, this.requestUpdate);
+      this.hooks.push(contextNode);
+      return contextNode.getValueFor(context, fallbackValue);
+    } else {
+      const contextNode = this.getNextHook();
+
+      if (!(contextNode instanceof ContextNode)) {
+        throw new Error('hook call order out of sync');
+      }
+
+      return contextNode.getValueFor(context, fallbackValue);
+    }
   }
 
   useEffect(runEffect: RunEffect, dependencies: Dependencies) {
@@ -188,7 +233,11 @@ export class HookState implements Environment {
   }
 }
 
-export type HookStateFactory = (programContext: ProgramContext, scheduleUpdate: () => void) => HookState;
+export type HookStateFactory = (
+    programContext: ProgramContext,
+    contextTreeNode: ContextTreeNode | undefined,
+    scheduleUpdate: () => void,
+) => HookState;
 
 export function createHookStateFactory(
   requestIdleCallback: (cb: () => void) => number,
@@ -201,9 +250,10 @@ export function createHookStateFactory(
     }
   };
 
-  return (programContext, componentSchedule) => (
+  return (programContext, contextTreeNode, componentSchedule) => (
       new HookState(
           programContext,
+          contextTreeNode,
           componentSchedule,
           (runEffect, dependencies) => (
               EffectNode.create(
