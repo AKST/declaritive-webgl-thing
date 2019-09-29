@@ -1,4 +1,4 @@
-import { createProgram } from '/src/util/webgl/create';
+import { createProgram } from '/src/util/webgl';
 import { createElement } from '/src/renderer/element/element';
 import { Node } from '/src/renderer/state_tree/state_tree';
 import { render, ProgramContext } from '/src/renderer/index';
@@ -33,12 +33,16 @@ const vertexSource = `
 
 document.addEventListener('DOMContentLoaded', function () {
   const canvasBoundsElement = document.getElementById('bounds')!;
+  if (canvasBoundsElement == null) throw new Error('canvas bounds element does not exist');
+
   const canvasBounds = canvasBoundsElement.getBoundingClientRect();
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   canvas.width = canvasBounds.width;
   canvas.height = canvasBounds.height;
 
   const context = canvas.getContext('webgl')!;
+  if (context == null) throw new Error('canvas context does not exist');
+
   const program = createProgram(context, vertexSource, fragmentSource);
 
   render([
