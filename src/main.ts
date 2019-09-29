@@ -1,4 +1,3 @@
-import { checkExists } from '/src/util/types';
 import { createProgram } from '/src/util/webgl/create';
 import { createElement } from '/src/renderer/element/element';
 import { Node } from '/src/renderer/state_tree/state_tree';
@@ -33,13 +32,13 @@ const vertexSource = `
 `;
 
 document.addEventListener('DOMContentLoaded', function () {
-  const canvasBoundsElement = checkExists(document.getElementById('bounds'), 'unable to find bounds');
+  const canvasBoundsElement = document.getElementById('bounds')!;
   const canvasBounds = canvasBoundsElement.getBoundingClientRect();
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   canvas.width = canvasBounds.width;
   canvas.height = canvasBounds.height;
 
-  const context = checkExists(canvas.getContext('webgl'), 'expected the context to exist');
+  const context = canvas.getContext('webgl')!;
   const program = createProgram(context, vertexSource, fragmentSource);
 
   render([

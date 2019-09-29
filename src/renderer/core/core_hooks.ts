@@ -6,7 +6,7 @@
  * Now that we've got that out of the way, to avoid an
  * unecessary dep comparision
  */
-import { assertExists } from '/src/util/types';
+import { assertExists } from '/src/renderer/util/asserts';
 import {
   AttributeLocation,
   BufferInfo,
