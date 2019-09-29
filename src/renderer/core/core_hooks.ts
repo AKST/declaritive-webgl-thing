@@ -11,11 +11,13 @@ import {
   AttributeLocation,
   BufferInfo,
   Environment,
+  RunAnimationFrame,
   UniformLocation,
 } from '/src/renderer/base';
 import {
   AttributeMemoMapContext,
   ProgramContext,
+  OnAnimationFrame,
   UniformMemoMapContext,
   WebGLRenderingContextContext,
 } from './core_contexts';
@@ -51,6 +53,29 @@ export function useUniform(environment: Environment, name: string, type: string)
     const location = getOrSetGetKey(programsMap, name, () => context.getUniformLocation(program, name));
     return { type, location: checkExists(location) };
   }, [name, program]);
+}
+
+export function useAnimationFrame(
+    environment: Environment,
+    onAnimationFrame: RunAnimationFrame,
+    dependencies: any[],
+) {
+  const animationFrameCallbacks = environment.useContext(OnAnimationFrame, undefined);
+
+  environment.useLayoutEffect(() => {
+    if (!animationFrameCallbacks) return;
+    animationFrameCallbacks.add(onAnimationFrame);
+    return () => animationFrameCallbacks.delete(onAnimationFrame);
+  }, dependencies);
+}
+
+export function useAnimationFrameFactory(
+    environment: Environment,
+    onAnimationFrameFactory: () => RunAnimationFrame,
+    dependencies: any[],
+) {
+  const onAnimationFrame = environment.useMemo(() => onAnimationFrameFactory(), dependencies);
+  useAnimationFrame(environment, onAnimationFrame, [onAnimationFrame]);
 }
 
 function getOrSetGetKey<K, V>(map: Map<K, V>, key: K, initialValue: () => V): V {

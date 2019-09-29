@@ -2,6 +2,8 @@ export type Props = Record<string, any>;
 
 export type RunEffect = () => (() => void) | undefined;
 
+export type RunAnimationFrame = (d: number, s: number) => void;
+
 export type Dependencies = any[]
 
 export type BufferInfo = { buffer: WebGLBuffer, data: Float32Array, kind: number };

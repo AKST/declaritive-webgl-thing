@@ -20,7 +20,6 @@ function squarePoints(x: number, y: number, w: number, h: number) {
   ];
 }
 
-
 type SquareProps = {
   xOffset: number;
   yOffset: number;

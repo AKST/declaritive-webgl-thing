@@ -2,6 +2,7 @@ import {
   Children,
   createElement,
   Environment,
+  useAnimationFrame,
   useUniform,
 } from '/src/renderer/index';
 
@@ -15,16 +16,9 @@ export function AnimateRotation(props: AnimateRotationProps, env: Environment) {
   const { period, uniformName, children } = props;
   const [angle, setAngle] = env.useState(0);
 
-  env.useEffect(() => {
-    const start = performance.now();
-
-    let frame = requestAnimationFrame(function f(delta) {
-      const percent = (delta - start) / period;
-      setAngle(360 * percent);
-      frame = requestAnimationFrame(f);
-    });
-
-    return () => cancelAnimationFrame(frame);
+  useAnimationFrame(env, (delta: number, start: number) => {
+    const percent = (delta - start) / period;
+    setAngle(360 * percent);
   }, [period, setAngle]);
 
   return createElement(Rotation, {

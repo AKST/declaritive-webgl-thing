@@ -3,6 +3,7 @@ import {
   createElement,
   Environment,
   useUniform,
+  useAnimationFrameFactory,
 } from '/src/renderer/index';
 
 const createOffsetValue = (distance: number) => (Math.random() - 0.5) * distance;
@@ -21,19 +22,21 @@ export function JitterTranslate(props: JitterTranslateProps, env: Environment) {
   const [xOffset, setXOffset] = env.useState(createOffsetValue(d));
   const [yOffset, setYOffset] = env.useState(createOffsetValue(d));
 
-  env.useEffect(() => {
+  useAnimationFrameFactory(env, () => {
     let localXOffset = xOffset;
     let localYOffset = yOffset;
+    let lastUpdate = 0;
 
-    const interval = setInterval(() => {
+    return (delta: number) => {
+      if ((delta - lastUpdate) < rate) return;
+
       localXOffset = (createOffsetValue(d) * 0.1) + (0.9 * localXOffset);
       localYOffset = (createOffsetValue(d) * 0.1) + (0.9 * localYOffset);
+      lastUpdate = delta;
 
       setXOffset(localXOffset);
       setYOffset(localYOffset);
-    }, rate);
-
-    return () => clearInterval(interval);
+    };
   }, [rate]);
 
   return createElement(Translate, {
