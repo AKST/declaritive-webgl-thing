@@ -31,9 +31,10 @@ type SquareProps = {
 const Square = (props: SquareProps, env: Environment) => {
   const { xOffset, yOffset, attributeName, size } = props;
 
-  const data = env.useMemo(() => (
-      new Float32Array(squarePoints(xOffset, yOffset, size, size))
-  ), [xOffset, yOffset, size]);
+  const data = env.useMemo(() => {
+    const points = squarePoints(xOffset, yOffset, size, size);
+    return new Float32Array(points)
+  }, [xOffset, yOffset, size]);
 
   return createElement('set-attribute-data', {
     attribute: useAttribute(env, attributeName, 2),
@@ -54,6 +55,7 @@ export function Main(props: MainProps) {
     rotationUniformName,
     translateUniformName,
   } = props;
+
   const createJitter = (children: Children) => (
       createElement(JitterTranslate, {
         rate: 1000 / 30,
