@@ -33,7 +33,9 @@ export function render(
   const runtime = new Runtime(
       animationFrameCallbacks,
       new Painter(context),
-      createRenderer()
+      createRenderer(),
+      (f) => window.requestAnimationFrame(f),
+      performance.now(),
   );
 
   onComplete(

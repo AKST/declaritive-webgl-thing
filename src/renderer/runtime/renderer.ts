@@ -1,4 +1,4 @@
-import { createRequestIdleCallback } from '/src/util/browser/request_idle_callback';
+import { createRequestIdleCallback } from '/src/renderer/util/request_idle_callback';
 import { ContextTreeNode } from '/src/renderer/context/context';
 import { Element, Primative } from '/src/renderer/base';
 import {

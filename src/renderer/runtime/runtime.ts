@@ -4,13 +4,14 @@ import { Painter } from './painter';
 import { Renderer } from './renderer';
 
 export class Runtime {
-  private startTime = performance.now();
   private rootNodes: Node[] = [];
 
   constructor(
       private readonly animationFrameCallbacks: Set<RunAnimationFrame>,
       private readonly painter: Painter,
       private readonly renderer: Renderer,
+      private requestAnimationFrame: typeof window.requestAnimationFrame,
+      private readonly startTime: number,
   ) {
   }
 
@@ -31,6 +32,6 @@ export class Runtime {
       console.error(e);
     }
 
-    requestAnimationFrame(this.onNewAnimationFrame);
+    this.requestAnimationFrame(this.onNewAnimationFrame);
   };
 }

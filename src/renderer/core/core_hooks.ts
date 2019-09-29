@@ -6,7 +6,7 @@
  * Now that we've got that out of the way, to avoid an
  * unecessary dep comparision
  */
-import { checkExists } from '/src/util/types';
+import { assertExists } from '/src/util/types';
 import {
   AttributeLocation,
   BufferInfo,
@@ -26,7 +26,7 @@ export function useBuffer(environment: Environment, data: Float32Array, kind: nu
   const context = environment.useContext(WebGLRenderingContextContext, undefined);
 
   return environment.useMemo(() => {
-    const buffer = checkExists(context && context.createBuffer());
+    const buffer = assertExists(context && context.createBuffer());
     return { buffer, data, kind };
   }, [data, kind]);
 }
@@ -39,7 +39,7 @@ export function useAttribute(environment: Environment, name: string, size: numbe
   return environment.useMemo(() => {
     const programsMap = getOrSetGetKey(attrMap, program, () => new Map());
     const location =  getOrSetGetKey(programsMap, name, () => context.getAttribLocation(program, name));
-    return { size, location: checkExists(location) };
+    return { size, location: assertExists(location) };
   }, [name, program]);
 }
 
@@ -51,7 +51,7 @@ export function useUniform(environment: Environment, name: string, type: string)
   return environment.useMemo(() => {
     const programsMap = getOrSetGetKey(uniformMap, program, () => new Map());
     const location = getOrSetGetKey(programsMap, name, () => context.getUniformLocation(program, name));
-    return { type, location: checkExists(location) };
+    return { type, location: assertExists(location) };
   }, [name, program]);
 }
 
