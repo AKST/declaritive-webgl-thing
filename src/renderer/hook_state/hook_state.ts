@@ -68,6 +68,12 @@ export class EffectNode {
     }
   }
 
+  dispose() {
+    if (this.tidyUp) {
+      this.tidyUp();
+    }
+  }
+
   static create(requestIdleCallback: QueueEffect, runEffect: RunEffect, dependencies: Dependencies) {
     const instance = new EffectNode(requestIdleCallback, dependencies);
     requestIdleCallback(() => instance.tidyUp = runEffect());
@@ -203,6 +209,18 @@ export class HookState implements Environment {
   onRenderFinish() {
     this.initialRender = false;
     this.hookPosition = 0;
+  }
+
+  dispose() {
+    try {
+      for (const hookNode of this.hooks) {
+        if (hookNode instanceof EffectNode) {
+          hookNode.dispose();
+        }
+      }
+    } catch (e) {
+      console.error('error while disposing', e);
+    }
   }
 
   private getNextHook() {

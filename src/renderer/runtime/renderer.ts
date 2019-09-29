@@ -97,6 +97,7 @@ export class Renderer {
       contextNode: ContextTreeNode | undefined,
   ): Node {
     if (node.shouldRerender(output)) {
+      node.dispose();
       return this.renderElement(output, contextNode);
     }
     if (node.shouldUpdate(output)) {
@@ -129,6 +130,7 @@ export class Renderer {
     );
 
     if (node.childNode !== childNode) {
+      node.childNode.dispose();
       node.setChildNode(childNode);
     }
 
@@ -165,6 +167,12 @@ export class Renderer {
     }
     else if (node.childNodes.length > childElements.length) {
       const newArrayLength = childElements.length - node.childNodes.length;
+
+      // clean up dismounted children.
+      for (const child of node.childNodes.slice(newArrayLength)) {
+        child.dispose();
+      }
+
       node.childNodes = node.childNodes.slice(0, newArrayLength);
     }
   }

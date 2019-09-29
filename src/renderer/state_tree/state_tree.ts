@@ -8,6 +8,7 @@ export type Node = PrimativeNode | ComponentNode<any>;
 export interface NodeApi {
   shouldRerender(element: Element): boolean;
   shouldUpdate(element: Element): boolean;
+  dispose(): void;
 }
 
 export function isComponentNode(element: Node): element is ComponentNode<any> {
@@ -36,6 +37,12 @@ export class PrimativeNode implements NodeApi {
 
   shouldUpdate(element: Element): boolean {
     return !element.primativeIsEqual(this.primative);
+  }
+
+  dispose() {
+    for (const child of this.childNodes) {
+      child.dispose();
+    }
   }
 }
 
@@ -78,5 +85,10 @@ export class ComponentNode<T extends Props> implements NodeApi  {
     }
 
     return true;
+  }
+
+  dispose() {
+    this.hookState.dispose();
+    this.childNode.dispose();
   }
 }
