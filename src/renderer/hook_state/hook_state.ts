@@ -54,8 +54,9 @@ export class EffectNode {
   constructor(
       private readonly requestIdleCallback: QueueEffect,
       private dependencies: Dependencies,
+      tidyUp?: () => void,
   ) {
-    this.tidyUp = undefined;
+    this.tidyUp = tidyUp;
   }
 
   syncEffect(runEffect: RunEffect, dependencies: Dependencies) {
@@ -71,11 +72,12 @@ export class EffectNode {
   dispose() {
     if (this.tidyUp) {
       this.tidyUp();
+      this.tidyUp = undefined;
     }
   }
 
   static create(requestIdleCallback: QueueEffect, runEffect: RunEffect, dependencies: Dependencies) {
-    const instance = new EffectNode(requestIdleCallback, dependencies);
+    const instance = new EffectNode(requestIdleCallback, dependencies, undefined);
     requestIdleCallback(() => instance.tidyUp = runEffect());
     return instance;
   }
