@@ -94,16 +94,22 @@ export function Main(props: MainProps) {
           attributeName,
           xOffset: -0.5 + (0.5 * 0.25),
           yOffset: 0.5 * 0.25,
-          size: 0.25,
+          size: 0.3,
         })
       ]),
       createJitter([
-        createElement(Square, {
-          attributeName,
-          xOffset: 0.5  * 0.25,
-          yOffset: -0.5 + (0.5 * 0.25),
-          size: 0.25,
-        })
+        createElement(AnimateRotation, {
+          period: 1000,
+          uniformName: rotationUniformName,
+          children: [
+            createElement(Square, {
+              attributeName,
+              xOffset: 0.5  * 0.25,
+              yOffset: -0.5 + (0.5 * 0.25),
+              size: 0.2,
+            })
+          ],
+        }),
       ]),
     ],
   });
